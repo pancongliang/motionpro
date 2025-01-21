@@ -27,7 +27,7 @@ export NETWORK="10.72.94.0/24"
 export GATEWAY="10.72.94.254"
 export INTERFACE="ens192"
 
-cat << EOF > 2
+cat << EOF > /etc/rc.d/rc.local
 #!/bin/bash
 ip rule add from $NETWORK table 100
 ip route add default via $GATEWAY dev $INTERFACE table 100
