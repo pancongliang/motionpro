@@ -42,7 +42,7 @@ ip route add default via $GATEWAY dev $INTERFACE table 100
 ### 5. Start VPNcontainer
 
 ~~~
-./runit.sh 
+podman run -d --hostname motion-pro-vpn --name VPNcontainer --privileged --network host motion-pro-vpn-client --method $METHOD --host $HOST --user $USER --passwd $PASSWD -c inf --loglevel war
 ~~~
 
 
