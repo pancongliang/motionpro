@@ -21,14 +21,32 @@ export METHOD=radius
 ./buildit.sh
 ~~~
 
-### 4. Start VPNcontainer
+### 4. Add a route so that clients can ssh to the VPN-enabled machine
+~~~
+export NETWORK="10.72.94.0/24"
+export GATEWAY="10.72.94.254"
+export INTERFACE="ens192"
+
+cat << EOF > 2
+#!/bin/bash
+ip rule add from $NETWORK table 100
+ip route add default via $GATEWAY dev $INTERFACE table 100
+EOF
+
+chmod +x /etc/rc.d/rc.local
+
+ip rule add from $NETWORK table 100
+ip route add default via $GATEWAY dev $INTERFACE table 100
+~~~
+
+### 5. Start VPNcontainer
 
 ~~~
 ./runit.sh 
 ~~~
 
 
-### 5. Automatic Start VPN Container
+### 6. Automatic Start VPN Container
 
 ##### Automatic Start VPN Container
 ~~~
@@ -60,21 +78,6 @@ crontab -e
 ~~~
 # Restart the container to keep the VPN token valid.
 */10 * * * * ssh -o BatchMode=yes -o ConnectTimeout=15 -t root@10.184.134.128 'date' && echo "$(date): SSH Succeeded" >> /var/log/ssh.log 2>&1 || { echo "$(date): SSH Failed" >> /var/log/ssh.log 2>&1; /bin/systemctl restart VPNcontainer.service && echo "$(date): VPNcontainer restarted" >> /var/log/ssh.log 2>&1; }
-~~~
-
-### 6. Add a route so that clients can ssh to the VPN-enabled machine
-~~~
-export NETWORK="10.72.94.0/24"
-export GATEWAY="10.72.94.254"
-export INTERFACE="ens192"
-
-cat << EOF > 2
-#!/bin/bash
-ip rule add from $NETWORK table 100
-ip route add default via $GATEWAY dev $INTERFACE table 100
-EOF
-
-chmod +x /etc/rc.d/rc.local
 ~~~
 
 ### 7. Access Target environment
