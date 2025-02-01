@@ -6,7 +6,13 @@
 yum install -y podman
 ~~~
 
-### 2. Setting Environment Variables
+### 2. Build Dockerfile
+
+~~~
+./buildit.sh
+~~~
+
+### 3. Setting Environment Variables
 
 ~~~
 export USER='xxxx@xxx.com'
@@ -15,11 +21,6 @@ export HOST='pn.sng01.softlayer.com'
 export METHOD=radius
 ~~~
 
-### 3. Build Dockerfile
-
-~~~
-./buildit.sh
-~~~
 
 ### 4. Start VPNcontainer
 
