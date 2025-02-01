@@ -11,7 +11,7 @@ yum install -y podman
 ~~~
 export USER='xxxx@xxx.com'
 export PASSWD='xxxx'
-export HOST='vpn.tok.softlayer.com'
+export HOST='pn.sng01.softlayer.com'
 export METHOD=radius
 ~~~
 
