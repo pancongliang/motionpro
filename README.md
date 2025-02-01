@@ -52,10 +52,27 @@ systemctl enable VPNcontainer.service --now
 
 ##### Restart the container to keep the VPN token valid.
 ~~~
-podman exec -it VPNcontainer /bin/bash
-[root@b1c83b17cb9f /]# ssh-keygen
-[root@b1c83b17cb9f /]# ssh-copy-id root@10.184.134.128
-[root@b1c83b17cb9f /]# exit
+cat << EOF > /$HOME/check-vpn-status.sh
+#!/bin/bash
+# Define log file path
+LOG_FILE="/var/log/motionpro.log"
+# Get VPN status
+VPN_STATUS=$(/usr/bin/podman exec -it VPNcontainer /opt/MotionPro/vpn_cmdline --status)
+# Current time
+CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
+# Check if VPN status is "connected"
+if [[ "$VPN_STATUS" != *"connected"* ]]; then
+    # Log: VPN not connected.
+    echo "$CURRENT_TIME - MotionPro VPN not connected." >> $LOG_FILE
+    # Restart the VPNcontainer service
+    systemctl restart VPNcontainer.service
+    # Log: VPNcontainer service has been restarted
+    echo "$CURRENT_TIME - MotionPro VPNcontainer service restarted" >> $LOG_FILE
+else
+    # Log: VPN is connected
+    echo "$CURRENT_TIME - MotionPro VPN is connected" >> $LOG_FILE
+fi
+EOF
 ~~~
 
 ~~~
@@ -63,7 +80,7 @@ crontab -e
 ~~~
 ~~~
 # Restart the container to keep the VPN token valid.
-*/5 * * * * /usr/bin/podman exec -it VPNcontainer ssh -o BatchMode=yes -o ConnectTimeout=15 -t root@10.184.134.128 'date' && echo "$(date): SSH Succeeded" >> /var/log/ssh.log 2>&1 || { echo "$(date): SSH Failed" >> /var/log/ssh.log 2>&1; /bin/systemctl restart VPNcontainer.service && echo "$(date): VPNcontainer restarted" >> /var/log/ssh.log 2>&1; }
+*/5 * * * * /$HOME/check-vpn-status.sh
 ~~~
 
 ### 6. Access Target environment
