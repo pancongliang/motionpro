@@ -31,7 +31,7 @@ export METHOD=radius
 
 ### 5. Automatic Start VPN Container
 
-##### Automatic Start VPN Container
+#### Automatically start VPN container when the machine starts
 ~~~
 cat << EOF > /etc/systemd/system/VPNcontainer.service
 [Unit]
@@ -50,7 +50,7 @@ EOF
 systemctl enable VPNcontainer.service --now
 ~~~
 
-##### Restart the container to keep the VPN token valid.
+#### Restart the container to keep the VPN token valid.
 ~~~
 cat << EOF > /$HOME/check-vpn-status.sh
 #!/bin/bash
