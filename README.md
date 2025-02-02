@@ -1,4 +1,4 @@
-## motion-pro-vpn-client
+## Motion-Pro VPN Client
 
 
 ### 1. Download the project code
