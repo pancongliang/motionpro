@@ -1,7 +1,6 @@
-# motion-pro-vpn-client
+## motion-pro-vpn-client
 
 ### 1. Install podman
-
 ~~~
 git clone https://github.com/pancongliang/motion-pro-vpn-client.git
 
@@ -10,7 +9,6 @@ podman login registry.redhat.io
 ~~~
 
 ### 2. Build Dockerfile
-
 ~~~
 cd motion-pro-vpn-client
 ./buildit.sh
@@ -32,7 +30,6 @@ export METHOD=radius
 ~~~
 ./runit.sh 
 ~~~
-
 
 - Option B: Share VPN network between host and container
 ~~~
