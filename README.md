@@ -68,7 +68,7 @@
 
   chmod +x /etc/rc.d/rc.local
 
-  ./runit-host-network.sh 
+  ./runit-host-net.sh 
   ~~~
 
 ### 6. Automatic Start VPN Container
