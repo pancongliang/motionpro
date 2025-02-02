@@ -8,7 +8,7 @@
   git clone https://github.com/pancongliang/motion-pro-vpn-client.git
   ~~~
 
-### 2. Install podman and login to the registry.redhat.io
+### 2. Install required packages and login to the registry.redhat.io
 
 * Install podman and wget:
   ~~~
