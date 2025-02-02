@@ -9,6 +9,7 @@ yum install -y podman
 ### 2. Build Dockerfile
 
 ~~~
+cd motion-pro-vpn-client
 ./buildit.sh
 ~~~
 
@@ -33,28 +34,15 @@ export METHOD=radius
 
 #### Automatically start VPN container when the machine starts
 ~~~
-cat << EOF > /etc/systemd/system/VPNcontainer.service
-[Unit]
-Description= VPNcontainer
-After=network.target
-After=network-online.target
-[Service]
-Restart=always
-ExecStart=/usr/bin/podman start -a VPNcontainer
-ExecStop=/usr/bin/podman stop -t 10 VPNcontainer
-[Install]
-WantedBy=multi-user.target
-EOF
-~~~
-~~~
+cp VPNcontainer.service /etc/systemd/system/VPNcontainer.service
+
 systemctl enable VPNcontainer.service --now
 ~~~
 
 #### Restart the container to keep the VPN token valid.
 ~~~
 crontab -e
-~~~
-~~~
+
 # Restart the container to keep the VPN token valid.
 */5 * * * * /$HOME/motion-pro-vpn-client/check-vpn-status.sh
 ~~~
