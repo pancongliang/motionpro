@@ -3,7 +3,8 @@
 ### 1. Install podman
 
 ~~~
-yum install -y podman
+git clone https://github.com/pancongliang/motion-pro-vpn-client.git
+yum install -y podman wget
 ~~~
 
 ### 2. Build Dockerfile
