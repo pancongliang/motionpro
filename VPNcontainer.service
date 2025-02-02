@@ -1,0 +1,10 @@
+[Unit]
+Description= VPNcontainer
+After=network.target
+After=network-online.target
+[Service]
+Restart=always
+ExecStart=/usr/bin/podman start -a VPNcontainer
+ExecStop=/usr/bin/podman stop -t 10 VPNcontainer
+[Install]
+WantedBy=multi-user.target
