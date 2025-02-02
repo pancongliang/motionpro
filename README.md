@@ -63,7 +63,6 @@ systemctl enable VPNcontainer.service --now
 #### Restart the container to keep the VPN token valid.
 ~~~
 crontab -e
-
 # Restart the container to keep the VPN token valid.
 */5 * * * * /$HOME/motion-pro-vpn-client/check-vpn-status.sh
 
