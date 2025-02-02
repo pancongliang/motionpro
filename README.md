@@ -22,7 +22,7 @@
 
 ### 3. Build Dockerfile
 
-* Build Dockerfile:
+* Build the Docker Image:
   ~~~
   cd motion-pro-vpn-client
   ./buildit.sh
