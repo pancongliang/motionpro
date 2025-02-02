@@ -3,11 +3,13 @@
 
 ### 1. Download the project code
 * Download motion-pro-vpn-client repository:
+  
   ~~~
   git clone https://github.com/pancongliang/motion-pro-vpn-client.git
   ~~~
 
 ### 2. Install podman and login to the registry.redhat.io
+
 * Install podman and wget:
   ~~~
   yum install -y podman wget
@@ -19,19 +21,21 @@
   ~~~
 
 ### 3. Build Dockerfile
-* Build Dockerfile
+
+* Build Dockerfile:
   ~~~
   cd motion-pro-vpn-client
   ./buildit.sh
   ~~~
 
 ### 4. Setting Environment Variables
-* Test VPN speed
+
+* Test VPN speed:
   ~~~
   bash ping-vpn.sh
   ~~~
 
-* Setting Environment Variables
+* Setting Environment Variables:
   ~~~
   export USER='xxxx@xxx.com'
   export PASSWD='xxxx'
@@ -42,12 +46,12 @@
 
 ### 5. Start VPNcontainer Container
 
-* Option A: Only containers can access the VPN network
+* Option A: Only containers can access the VPN network:
   ~~~
   ./runit.sh 
   ~~~
 
-* Option B: Share VPN network between host and container
+* Option B: Share VPN network between host and container:
   ~~~
   export NETWORK="10.72.94.0/24"
   export GATEWAY="10.72.94.254"
@@ -69,13 +73,13 @@
 
 ### 6. Automatic Start VPN Container
 
-* Automatically start VPN container when the machine starts
+* Automatically start VPN container when the machine starts:
   ~~~
   cp VPNcontainer.service /etc/systemd/system/VPNcontainer.service
   systemctl enable VPNcontainer.service --now
   ~~~
 
-* Restart the container to keep the VPN token valid.
+* Restart the container to keep the VPN token valid:
   ~~~
   crontab -e
   # Restart the container to keep the VPN token valid.
@@ -87,11 +91,11 @@
 
 ### 7. Access Target environment
 
-* Option A: Only containers can access the VPN network
+* Option A: Only containers can access the VPN network:
   ~~~
   podman exec -it VPNcontainer /bin/bash -c 'ssh root@10.184.134.128'
   ~~~
-* Option B: Share VPN network between host and container
+* Option B: Share VPN network between host and container:
   ~~~
   ssh root@10.184.134.128
   ~~~
