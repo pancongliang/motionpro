@@ -89,7 +89,7 @@
   touch /var/log/motionpro.log && chmod 777 /var/log/motionpro.log
   ~~~
 
-### 7. Access Target environment
+### 7. Access the Target Environment
 
 * Option A: Only containers can access the VPN network:
   ~~~
