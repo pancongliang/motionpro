@@ -25,14 +25,14 @@
 * Build the Docker Image:
   ~~~
   cd motion-pro-vpn-client
-  ./buildit.sh
+  sh buildit.sh
   ~~~
 
 ### 4. Setting Environment Variables
 
 * Test VPN speed:
   ~~~
-  bash ping-vpn.sh
+  sh ping-vpn.sh
   ~~~
 
 * Set required variables:
@@ -48,7 +48,7 @@
 
 * Option A: Only containers can access the VPN network:
   ~~~
-  ./runit.sh 
+  sh runit.sh 
   ~~~
 
 * Option B: Share VPN network between host and container:
@@ -68,7 +68,7 @@
 
   chmod +x /etc/rc.d/rc.local
 
-  ./runit-host-net.sh 
+  sh runit-host-net.sh 
   ~~~
 
 ### 6. Automatic Start VPN Container
@@ -95,6 +95,7 @@
   ~~~
   podman exec -it VPNcontainer /bin/bash -c 'ssh root@10.184.134.128'
   ~~~
+  
 * Option B: Share VPN network between host and container:
   ~~~
   ssh root@10.184.134.128
