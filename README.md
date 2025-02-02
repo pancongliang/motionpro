@@ -4,7 +4,9 @@
 
 ~~~
 git clone https://github.com/pancongliang/motion-pro-vpn-client.git
+
 yum install -y podman wget
+podman login registry.redhat.io
 ~~~
 
 ### 2. Build Dockerfile
