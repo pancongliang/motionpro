@@ -12,7 +12,7 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 # Check if VPN status is "connected"
 if [[ "$VPN_STATUS" != *"connected"* ]]; then
     # Log: VPN not connected.
-    echo "$CURRENT_TIME - MotionPro VPN not connected." >> $LOG_FILE
+    echo "$CURRENT_TIME - MotionPro VPN not connected" >> $LOG_FILE
     
     # Restart the VPNcontainer service
     systemctl restart VPNcontainer.service
