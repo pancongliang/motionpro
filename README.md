@@ -67,6 +67,7 @@ crontab -e
 # Restart the container to keep the VPN token valid.
 */5 * * * * /$HOME/motion-pro-vpn-client/check-vpn-status.sh
 
+chmod +x /$HOME/motion-pro-vpn-client/check-vpn-status.sh
 touch /var/log/motionpro.log && chmod 777 /var/log/motionpro.log
 ~~~
 
