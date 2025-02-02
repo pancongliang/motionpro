@@ -35,7 +35,7 @@
   bash ping-vpn.sh
   ~~~
 
-* Setting Environment Variables:
+* Set required variables:
   ~~~
   export USER='xxxx@xxx.com'
   export PASSWD='xxxx'
