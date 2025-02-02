@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/ubi-init/9.5-1736424979
+FROM registry.redhat.io/ubi9-init:9.5-1736424979
 
 ENV RUNIT='MotionPro_Linux_RedHat_x64_build-8383-30.sh'
 
