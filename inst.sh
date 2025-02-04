@@ -1,11 +1,19 @@
-sudo cat <<EOF > $home/inst.sh
+
 #!/bin/bash
 set -u
 
+# VPN Information
 export USER='xxxx@xxx.com'
 export PASSWD='xxxx'
 export HOST='pn.sng01.softlayer.com'
 export METHOD=radius
+
+# VPN Host Information 
+export NETWORK="10.72.94.0/24"
+export GATEWAY="10.72.94.254"
+export INTERFACE="ens192"
+export DNS="10.72.17.5"
+
 
 # Function to print a task with uniform length
 PRINT_TASK() {
@@ -61,7 +69,7 @@ sudo setenforce 0 &>/dev/null
 temporary_status=$(getenforce)
 # Check if temporary SELinux security policy is permissive or disabled
 if [[ $temporary_status == "Permissive" || $temporary_status == "Disabled" ]]; then
-    echo "ok: [selinux temporary security policy is $temporary_status]"
+    echo "ok: [selinux temporary security policy is disabled]"
 else
     echo "failed: [selinux temporary security policy is $temporary_status (expected Permissive or Disabled)]"
 fi
@@ -103,24 +111,24 @@ sudo cat <<EOF > /opt/MotionPro/check-motionpro-status.sh
 LOG_FILE="/var/log/motionpro.log"
 
 # Get VPN status
-VPN_STATUS=$(//opt/MotionPro/vpn_cmdline --status)
+VPN_STATUS=\$(/opt/MotionPro/vpn_cmdline --status)
 
 # Current time
-CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
+CURRENT_TIME=\$(date "+%Y-%m-%d %H:%M:%S")
 a
 # Check if VPN status is "connected"
-if [[ "$VPN_STATUS" != *"connected"* ]]; then
+if [[ "\$VPN_STATUS" != *"connected"* ]]; then
     # Log: VPN not connected.
-    echo "$CURRENT_TIME - MotionPro VPN not connected" >> $LOG_FILE
+    echo "\$CURRENT_TIME - MotionPro VPN not connected" >> \$LOG_FILE
     
     # Restart the VPNcontainer service
     sudo /opt/MotionPro/vpn_cmdline --method $METHOD -h $HOST -u $USER -p $PASSWD -c inf --loglevel warn
     
     # Log: VPNcontainer service has been restarted
-    echo "$CURRENT_TIME - MotionPro VPN service restarted" >> $LOG_FILE
+    echo "\$CURRENT_TIME - MotionPro VPN service restarted" >> $LOG_FILE
 else
     # Log: VPN is connected
-    echo "$CURRENT_TIME - MotionPro VPN is connected" >> $LOG_FILE
+    echo "\$CURRENT_TIME - MotionPro VPN is connected" >> $LOG_FILE
 fi
 EOF
 run_command "[create the check-motionpro-status.sh script]"
