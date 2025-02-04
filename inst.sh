@@ -82,6 +82,9 @@ echo
 # === Task: Install and configure MotionPro ===
 PRINT_TASK "[TASK: Install and configure MotionPro]"
 
+sudo /opt/MotionPro/install.sh -u &> /dev/null
+rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh
+
 sudo curl -OL https://support.arraynetworks.net/prx/000/http/supportportal.arraynetworks.net/downloads/pkg_9_4_5_8/MP_Linux_1.2.18/MotionPro_Linux_RedHat_x64_build-8383-30.sh &> /dev/null
 run_command "[download motionpro vpn]"
 
@@ -91,6 +94,7 @@ run_command "[modify MotionPro_Linux_RedHat_x64_build-8383-30.sh permissions]"
 sudo sh MotionPro_Linux_RedHat_x64_build-8383-30.sh &> /dev/null
 run_command "[install motionpro vpn]"
 
+sudo sed -i '/^ip/d' /etc/rc.d/rc.local &> /dev/null
 sudo echo "ip route add $DNS via $GATEWAY dev ens192" >> /etc/rc.d/rc.local &> /dev/null
 run_command "[add routing rules]"
 
@@ -106,9 +110,12 @@ run_command "[add routing rules]"
 sudo chmod +x /etc/rc.d/rc.local &> /dev/null
 run_command "[modify /etc/rc.d/rc.local permissions]"
 
+MOTIONPRO_LOG="/var/log/motionpro.log"
+
+sudo rm -rf /opt/MotionPro/check-motionpro-status.sh
 sudo cat <<EOF > /opt/MotionPro/check-motionpro-status.sh
 # Define log file path
-LOG_FILE="/var/log/motionpro.log"
+LOG_FILE="$MOTIONPRO_LOG"
 
 # Get VPN status
 VPN_STATUS=\$(/opt/MotionPro/vpn_cmdline --status)
@@ -125,10 +132,10 @@ if [[ "\$VPN_STATUS" != *"connected"* ]]; then
     sudo /opt/MotionPro/vpn_cmdline --method $METHOD -h $HOST -u $USER -p $PASSWD -c inf --loglevel warn
     
     # Log: VPNcontainer service has been restarted
-    echo "\$CURRENT_TIME - MotionPro VPN service restarted" >> $LOG_FILE
+    echo "\$CURRENT_TIME - MotionPro VPN service restarted" >> \$LOG_FILE
 else
     # Log: VPN is connected
-    echo "\$CURRENT_TIME - MotionPro VPN is connected" >> $LOG_FILE
+    echo "\$CURRENT_TIME - MotionPro VPN is connected" >> \$LOG_FILE
 fi
 EOF
 run_command "[create the check-motionpro-status.sh script]"
@@ -136,12 +143,21 @@ run_command "[create the check-motionpro-status.sh script]"
 sudo chmod +x /opt/MotionPro/check-motionpro-status.sh &> /dev/null
 run_command "[modify /opt/MotionPro/check-motionpro-status.sh permissions]"
 
-sudo crontab -l > /tmp/mycron
-sudo echo "*/2 * * * * /opt/MotionPro/check-motionpro-status.sh" >> /tmp/mycron
-sudo crontab /tmp/mycron
+sudo rm -rf $MOTIONPRO_LOG
+sudo touch $MOTIONPRO_LOG
+run_command "[create $MOTIONPRO_LOG]"
+
+sudo chmod 777 $MOTIONPRO_LOG
+run_command "[modify $MOTIONPRO_LOG file permissions]"
+
+#sudo crontab -l > /tmp/mycron
+#sudo echo "*/2 * * * * /opt/MotionPro/check-motionpro-status.sh" >> crontab -l/tmp/mycron
+#sudo crontab /tmp/mycron
+sudo echo "*/3 * * * * /opt/MotionPro/check-motionpro-status.sh" | crontab -
 run_command "[Add a crontab to check the motionpro status]"
 rm -rf /tmp/mycron
 
+sudo rm -rf /etc/systemd/system/MotionPro.service
 cat <<EOF > /etc/systemd/system/MotionPro.service
 [Unit]
 Description= MotionPro
@@ -171,6 +187,8 @@ echo
 # === Task: Install and configure chrome ===
 PRINT_TASK "[TASK: Install and configure chrome]"
 
+sudo dnf remove google-chrome-stable_current_x86_64.rpm &> /dev/null
+rm -rf google-chrome-stable_current_x86_64.rpm &> /dev/null
 sudo curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm &> /dev/null
 run_command "[download google chrome rpm]"
 
@@ -188,6 +206,7 @@ echo
 # === Task: Start gnome-desktop with 200% scaling ===
 PRINT_TASK "[TASK: Start gnome-desktop with 200% scaling]"
 
+sudo rm -rf $HOME/.config/autostart &> /dev/null
 sudo mkdir -p $HOME/.config/autostart &> /dev/null
 sudo chmod 777 $HOME/.config/autostart &> /dev/null 
 sudo cat <<EOF > $HOME/.config/autostart/gnome-scaling.desktop
@@ -228,6 +247,7 @@ run_command "[enable and restart xrdp.service]"
 #sudo firewall-cmd --reload
 #sudo setsebool -P xrdp_can_connect_network 1
 
+sudo rm -rf /etc/xrdp/startwm.sh
 sudo cat <<EOF > /etc/xrdp/startwm.sh
 #!/bin/bash
 unset DBUS_SESSION_BUS_ADDRESS
@@ -238,18 +258,31 @@ run_command "[create the /etc/xrdp/startwm.sh file]"
 
 sudo systemctl restart xrdp &> /dev/null
 run_command "[restart xrdp.service]"
-EOF
-
-echo "warn: [Finally reboot the machine manually]"
-echo "warn: [Finally reboot the machine manually]"
-echo "warn: [Finally reboot the machine manually]"
 
 # Add an empty line after the task
 echo
 # ====================================================
 
+
 # === Task: Install Windows App on MAC ===
 PRINT_TASK "[TASK: Install Windows App on MAC]"
+
 echo "info: [install windows apps from the mac app store]"
 echo "info: [enable retina when editing remotely via windows app]"
 echo "info: [when remotely connected via windows app, the resolution can be changed to the highest]"
+
+# Add an empty line after the task
+echo
+# ====================================================
+
+
+# === Task: Finally reboot the machine manually ===
+PRINT_TASK "[finally reboot the machine manually]"
+
+echo "warn: [finally reboot the machine manually]"
+echo "warn: [finally reboot the machine manually]"
+echo "warn: [Finally reboot the machine manually]"
+
+# Add an empty line after the task
+echo
+# ====================================================
