@@ -56,10 +56,15 @@
   export NETWORK="10.72.94.0/24"
   export GATEWAY="10.72.94.254"
   export INTERFACE="ens192"
+  export DNS="10.72.17.5"
+  
   ip rule add from $NETWORK table 100"
   ip route add default via $GATEWAY dev $INTERFACE table 100
+  ip route add 10.72.17.5 via 10.72.94.254 dev ens192
+
   # ip route add 10.74.208.0/21 via $GATEWAY dev ens192
   # echo "ip route add 10.74.208.0/21 via $GATEWAY dev $INTERFACE" >> /etc/rc.d/rc.local
+  echo "ip route add 10.72.17.5 via 10.72.94.254 dev ens192" >> /etc/rc.d/rc.local
   echo "ip rule add from $NETWORK table 100" >> /etc/rc.d/rc.local
   echo "ip route add default via $GATEWAY dev $INTERFACE table 100" >> /etc/rc.d/rc.local
 
