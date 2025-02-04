@@ -89,6 +89,7 @@ ip route add $DNS via $GATEWAY dev ens192
 ip rule add from $NETWORK table 100
 ip route add default via $GATEWAY dev $INTERFACE table 100
 ip route add 10.74.208.0/21 via $GATEWAY dev $INTERFACE
+run_command "[adding a temporary routing rules]"
 
 sudo cat <<EOF > /etc/rc.d/rc.local
 #!/bin/bash
@@ -110,7 +111,7 @@ ip rule add from $NETWORK table 100
 ip route add default via $GATEWAY dev $INTERFACE table 100
 ip route add 10.74.208.0/21 via $GATEWAY dev $INTERFACE
 EOF
-run_command "[add routing rules]"
+run_command "[adding persistent routing rules]"
 
 sudo chmod +x /etc/rc.d/rc.local &> /dev/null
 run_command "[modify /etc/rc.d/rc.local permissions]"
@@ -124,21 +125,15 @@ run_command "[modify MotionPro_Linux_RedHat_x64_build-8383-30.sh permissions]"
 sudo sh MotionPro_Linux_RedHat_x64_build-8383-30.sh &> /dev/null
 run_command "[install motionpro vpn]"
 
-#sudo sed -i '/^ip/d' /etc/rc.d/rc.local &> /dev/null
-#sudo echo "ip route add $DNS via $GATEWAY dev ens192" >> /etc/rc.d/rc.local &> /dev/null
-#run_command "[add routing rules]"
-
-#sudo echo "ip rule add from $NETWORK table 100" >> /etc/rc.d/rc.local &> /dev/null
-#run_command "[add routing rules]"
-
-#sudo echo "ip route add default via $GATEWAY dev $INTERFACE table 100" >> /etc/rc.d/rc.local &> /dev/null
-#run_command "[add routing rules]"
-
-#sudo echo "ip route add 10.74.208.0/21 via $GATEWAY dev $INTERFACE" >> /etc/rc.d/rc.local &> /dev/null
-#run_command "[add routing rules]"
-
 
 MOTIONPRO_LOG="/var/log/motionpro.log"
+sudo rm -rf $MOTIONPRO_LOG
+
+sudo touch $MOTIONPRO_LOG
+run_command "[create $MOTIONPRO_LOG]"
+
+sudo chmod 777 $MOTIONPRO_LOG
+run_command "[modify $MOTIONPRO_LOG file permissions]"
 
 sudo rm -rf /opt/MotionPro/check-motionpro-status.sh
 sudo cat <<EOF > /opt/MotionPro/check-motionpro-status.sh
@@ -170,13 +165,6 @@ run_command "[create the check-motionpro-status.sh script]"
 
 sudo chmod +x /opt/MotionPro/check-motionpro-status.sh &> /dev/null
 run_command "[modify /opt/MotionPro/check-motionpro-status.sh permissions]"
-
-sudo rm -rf $MOTIONPRO_LOG
-sudo touch $MOTIONPRO_LOG
-run_command "[create $MOTIONPRO_LOG]"
-
-sudo chmod 777 $MOTIONPRO_LOG
-run_command "[modify $MOTIONPRO_LOG file permissions]"
 
 #sudo crontab -l > /tmp/mycron
 #sudo echo "*/2 * * * * /opt/MotionPro/check-motionpro-status.sh" >> crontab -l/tmp/mycron
