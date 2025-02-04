@@ -1,3 +1,5 @@
+#!/bin/bash
+
 export HOST='vpn.sng01.softlayer.com'
 export USER='xxxx'
 export PASSWD='xxxx'
