@@ -23,7 +23,7 @@ if [[ "$VPN_STATUS" != *"connected"* ]]; then
     sudo /opt/MotionPro/vpn_cmdline --method $METHOD -h $HOST -u $USER -p $PASSWD -c inf --loglevel warn
     
     # Log: VPNcontainer service has been restarted
-    echo "$CURRENT_TIME - MotionPro VPNcontainer service restarted" >> $LOG_FILE
+    echo "$CURRENT_TIME - MotionPro VPN service restarted" >> $LOG_FILE
 else
     # Log: VPN is connected
     echo "$CURRENT_TIME - MotionPro VPN is connected" >> $LOG_FILE
