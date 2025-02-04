@@ -18,16 +18,6 @@
   sh MotionPro_Linux_RedHat_x64_build-8383-30.sh
   ~~~
 
-  ~~~
-
-* Set required variables:
-  ~~~
-  export USER='xxxx@xxx.com'
-  export PASSWD='xxxx'
-  export HOST='pn.sng01.softlayer.com'
-  export METHOD=radius
-  ~~~
-
 ### Add routing rules
 
 * Add routing rules to access MotionPro client through ssh
@@ -61,7 +51,7 @@
 
   export USER='xxxx@xxx.com'
   export PASSWD='xxxx'
-  export HOST='pn.sng01.softlayer.com'
+  export HOST='vpn.sng01.softlayer.com'
   export METHOD=radius
   ~~~
 
@@ -72,6 +62,14 @@
 
 * Restart the container to keep the VPN token valid:
   ~~~
+  cd motion-pro-vpn-client
+  vim check-motionpro-status.sh
+
+  export USER='xxxx@xxx.com'
+  export PASSWD='xxxx'
+  export HOST='vpn.sng01.softlayer.com'
+  export METHOD=radius
+
   crontab -e
   # Restart the container to keep the VPN token valid.
   */5 * * * * /$HOME/motion-pro-vpn-client/check-motionpro-status.sh
