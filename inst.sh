@@ -207,8 +207,8 @@ PRINT_TASK "[TASK: Install and configure RDP]"
 sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm &> /dev/null
 run_command "[modify install epel-release-latest-9.noarch]"
 
-sudo dnf config-manager --set-enabled epel &> /dev/null
-run_command "[enable epel repositories]"
+#sudo dnf config-manager --set-enabled epel &> /dev/null
+#run_command "[enable epel repositories]"
 
 sudo dnf install xrdp tigervnc-server -y &> /dev/null
 run_command "[install xrdp and tigervnc-server rpm]"
