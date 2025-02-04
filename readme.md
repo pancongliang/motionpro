@@ -33,7 +33,7 @@
   ip route add $DNS via 10.72.94.254 dev ens192   # In order to access own DNS after opening the VPN
 
   # Persistent
-  echo "ip route add $DNS via 10.72.94.254 dev ens192" >> /etc/rc.d/rc.local
+  echo "ip route add $DNS via $GATEWAY dev ens192" >> /etc/rc.d/rc.local
   echo "ip rule add from $NETWORK table 100" >> /etc/rc.d/rc.local
   echo "ip route add default via $GATEWAY dev $INTERFACE table 100" >> /etc/rc.d/rc.local
 
