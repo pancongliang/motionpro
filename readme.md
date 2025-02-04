@@ -28,7 +28,7 @@
   export DNS="10.72.17.5"
 
   # Temporary
-  ip rule add from $NETWORK table 100"  # In order to access the host after opening the VPN
+  ip rule add from $NETWORK table 10"  # In order to access the host after opening the VPN
   ip route add default via $GATEWAY dev $INTERFACE table 100  # In order to access the host after opening the VPN
   ip route add $DNS via 10.72.94.254 dev ens192   # In order to access own DNS after opening the VPN
 
