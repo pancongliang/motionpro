@@ -180,9 +180,9 @@ echo
 # === Task: Start gnome-desktop with 200% scaling ===
 PRINT_TASK "[TASK: Start gnome-desktop with 200% scaling]"
 
-sudo mkdir -p ~/.config/autostart &> /dev/null
+sudo mkdir -p $HOME/.config/autostart &> /dev/null
 sudo chmod 777 $HOME/.config/autostart &> /dev/null 
-sudo cat <<EOF > ~/.config/autostart/gnome-scaling.desktop
+sudo cat <<EOF > $HOME/.config/autostart/gnome-scaling.desktop
 [Desktop Entry]
 Type=Application
 Exec=/usr/bin/gsettings set org.gnome.desktop.interface scaling-factor 2
@@ -191,10 +191,10 @@ X-GNOME-Autostart-enabled=true
 Name=GNOME Scaling
 Comment=Apply 200% scaling on startup
 EOF
-run_command "[create the ~/.config/autostart/gnome-scaling.desktop file]"
+run_command "[create the $HOME/.config/autostart/gnome-scaling.desktop file]"
 
-sudo chmod 777 ~/.config/autostart/gnome-scaling.desktop &> /dev/null
-run_command "[modify ~/.config/autostart/gnome-scaling.desktop permissions]"
+sudo chmod 777 $HOME/.config/autostart/gnome-scaling.desktop &> /dev/null
+run_command "[modify $HOME/.config/autostart/gnome-scaling.desktop permissions]"
 
 # Add an empty line after the task
 echo
