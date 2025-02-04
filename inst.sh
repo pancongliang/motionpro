@@ -180,7 +180,8 @@ echo
 # === Task: Start gnome-desktop with 200% scaling ===
 PRINT_TASK "[TASK: Start gnome-desktop with 200% scaling]"
 
-sudo mkdir -p ~/.config/autostart &> /dev/null 
+sudo mkdir -p ~/.config/autostart &> /dev/null
+sudo chmod 777 $HOME/.config/autostart &> /dev/null 
 sudo cat <<EOF > ~/.config/autostart/gnome-scaling.desktop
 [Desktop Entry]
 Type=Application
@@ -203,11 +204,11 @@ echo
 # === Task: Install and configure RDP  ===
 PRINT_TASK "[TASK: Install and configure RDP]"
 
-sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm &> /dev/null
-run_command "[modify install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm]"
+sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm &> /dev/null
+run_command "[modify install epel-release-latest-9.noarch]"
 
 sudo dnf config-manager --set-enabled epel &> /dev/null
-run_command "[enable epel]"
+run_command "[enable epel repositories]"
 
 sudo dnf install xrdp tigervnc-server -y &> /dev/null
 run_command "[install xrdp and tigervnc-server rpm]"
@@ -230,3 +231,17 @@ run_command "[create the /etc/xrdp/startwm.sh file]"
 sudo systemctl restart xrdp &> /dev/null
 run_command "[restart xrdp.service]"
 EOF
+
+echo "warn: [Finally reboot the machine manually]"
+echo "warn: [Finally reboot the machine manually]"
+echo "warn: [Finally reboot the machine manually]"
+
+# Add an empty line after the task
+echo
+# ====================================================
+
+# === Task: Install Windows App on MAC ===
+PRINT_TASK "[TASK: Install Windows App on MAC]"
+echo "info: [install windows apps from the mac app store]"
+echo "info: [enable retina when editing remotely via windows app]"
+echo "info: [when remotely connected via windows app, the resolution can be changed to the highest]"
