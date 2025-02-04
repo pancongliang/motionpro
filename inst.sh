@@ -60,7 +60,7 @@ if [[ $permanent_status == "enforcing" ]]; then
 elif [[ $permanent_status =~ ^[Dd]isabled$ ]] || [[ $permanent_status == "permissive" ]]; then
     echo "ok: [selinux permanent security policy is $permanent_status]"
 else
-    echo "failed: [selinux permanent security policy is $permanent_status]"
+    echo "failed: [selinux permanent security policy is $permanent_status (expected permissive or disabled)]"
 fi
 
 # Temporarily set SELinux security policy to permissive
@@ -71,7 +71,7 @@ temporary_status=$(getenforce)
 if [[ $temporary_status == "Permissive" || $temporary_status == "Disabled" ]]; then
     echo "ok: [selinux temporary security policy is disabled]"
 else
-    echo "failed: [selinux temporary security policy is $temporary_status (expected Permissive or Disabled)]"
+    echo "failed: [selinux temporary security policy is $temporary_status (expected permissive or disabled)]"
 fi
 
 # Add an empty line after the task
