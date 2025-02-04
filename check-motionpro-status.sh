@@ -1,5 +1,10 @@
 #!/bin/bash
 
+export HOST='vpn.sng01.softlayer.com'
+export USER='xxxxx'
+export PASSWD='xxxxx'
+export METHOD=radius
+
 # Define log file path
 LOG_FILE="/var/log/motionpro.log"
 
@@ -15,7 +20,7 @@ if [[ "$VPN_STATUS" != *"connected"* ]]; then
     echo "$CURRENT_TIME - MotionPro VPN not connected" >> $LOG_FILE
     
     # Restart the VPNcontainer service
-    sudo /opt/MotionPro/vpn_cmdline --method radius -h vpn.sng01.softlayer.com -u '2303960_copan@redhat.com' -p '!Ckdlsk88' -c inf --loglevel warn
+    sudo /opt/MotionPro/vpn_cmdline --method $METHOD -h $HOST -u $USER -p $PASSWD -c inf --loglevel warn
     
     # Log: VPNcontainer service has been restarted
     echo "$CURRENT_TIME - MotionPro VPNcontainer service restarted" >> $LOG_FILE
