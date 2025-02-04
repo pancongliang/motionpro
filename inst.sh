@@ -85,6 +85,36 @@ PRINT_TASK "[TASK: Install and configure MotionPro]"
 sudo /opt/MotionPro/install.sh -u &> /dev/null
 rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh
 
+ip route add $DNS via $GATEWAY dev ens192
+ip rule add from $NETWORK table 100
+ip route add default via $GATEWAY dev $INTERFACE table 100
+ip route add 10.74.208.0/21 via $GATEWAY dev $INTERFACE
+
+sudo cat <<EOF > /etc/rc.d/rc.local
+#!/bin/bash
+# THIS FILE IS ADDED FOR COMPATIBILITY PURPOSES
+#
+# It is highly advisable to create own systemd services or udev rules
+# to run scripts during boot instead of using this file.
+#
+# In contrast to previous versions due to parallel execution during boot
+# this script will NOT be run after all other services.
+#
+# Please note that you must run 'chmod +x /etc/rc.d/rc.local' to ensure
+# that this script will be executed during boot.
+
+touch /var/lock/subsys/local
+/usr/bin/vpnd 2>&1
+ip route add $DNS via $GATEWAY dev ens192
+ip rule add from $NETWORK table 100
+ip route add default via $GATEWAY dev $INTERFACE table 100
+ip route add 10.74.208.0/21 via $GATEWAY dev $INTERFACE
+EOF
+run_command "[add routing rules]"
+
+sudo chmod +x /etc/rc.d/rc.local &> /dev/null
+run_command "[modify /etc/rc.d/rc.local permissions]"
+
 sudo curl -OL https://support.arraynetworks.net/prx/000/http/supportportal.arraynetworks.net/downloads/pkg_9_4_5_8/MP_Linux_1.2.18/MotionPro_Linux_RedHat_x64_build-8383-30.sh &> /dev/null
 run_command "[download motionpro vpn]"
 
@@ -94,21 +124,19 @@ run_command "[modify MotionPro_Linux_RedHat_x64_build-8383-30.sh permissions]"
 sudo sh MotionPro_Linux_RedHat_x64_build-8383-30.sh &> /dev/null
 run_command "[install motionpro vpn]"
 
-sudo sed -i '/^ip/d' /etc/rc.d/rc.local &> /dev/null
-sudo echo "ip route add $DNS via $GATEWAY dev ens192" >> /etc/rc.d/rc.local &> /dev/null
-run_command "[add routing rules]"
+#sudo sed -i '/^ip/d' /etc/rc.d/rc.local &> /dev/null
+#sudo echo "ip route add $DNS via $GATEWAY dev ens192" >> /etc/rc.d/rc.local &> /dev/null
+#run_command "[add routing rules]"
 
-sudo echo "ip rule add from $NETWORK table 100" >> /etc/rc.d/rc.local &> /dev/null
-run_command "[add routing rules]"
+#sudo echo "ip rule add from $NETWORK table 100" >> /etc/rc.d/rc.local &> /dev/null
+#run_command "[add routing rules]"
 
-sudo echo "ip route add default via $GATEWAY dev $INTERFACE table 100" >> /etc/rc.d/rc.local &> /dev/null
-run_command "[add routing rules]"
+#sudo echo "ip route add default via $GATEWAY dev $INTERFACE table 100" >> /etc/rc.d/rc.local &> /dev/null
+#run_command "[add routing rules]"
 
-sudo echo "ip route add 10.74.208.0/21 via $GATEWAY dev $INTERFACE" >> /etc/rc.d/rc.local &> /dev/null
-run_command "[add routing rules]"
+#sudo echo "ip route add 10.74.208.0/21 via $GATEWAY dev $INTERFACE" >> /etc/rc.d/rc.local &> /dev/null
+#run_command "[add routing rules]"
 
-sudo chmod +x /etc/rc.d/rc.local &> /dev/null
-run_command "[modify /etc/rc.d/rc.local permissions]"
 
 MOTIONPRO_LOG="/var/log/motionpro.log"
 
