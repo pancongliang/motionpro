@@ -85,7 +85,7 @@ PRINT_TASK "[TASK: Install and configure MotionPro]"
 sudo /opt/MotionPro/install.sh -u &> /dev/null
 rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh
 
-ip route add $DNS via $GATEWAY dev ens192
+ip route add $DNS via $GATEWAY dev $INTERFACE
 ip rule add from $NETWORK table 100
 ip route add default via $GATEWAY dev $INTERFACE table 100
 ip route add 10.74.208.0/21 via $GATEWAY dev $INTERFACE
@@ -106,7 +106,7 @@ sudo cat <<EOF > /etc/rc.d/rc.local
 
 touch /var/lock/subsys/local
 /usr/bin/vpnd 2>&1
-ip route add $DNS via $GATEWAY dev ens192
+ip route add $DNS via $GATEWAY dev $INTERFACE
 ip rule add from $NETWORK table 100
 ip route add default via $GATEWAY dev $INTERFACE table 100
 ip route add 10.74.208.0/21 via $GATEWAY dev $INTERFACE
