@@ -13,7 +13,7 @@ export NETWORK="10.72.94.0/24"
 export GATEWAY="10.72.94.254"
 export INTERFACE="ens192"
 export DNS="10.72.17.5"
-
+export DEST_NETWORK="10.74.208.0/21" # Options: Additional networks to access, if none leave it as default
 
 # Function to print a task with uniform length
 PRINT_TASK() {
@@ -88,7 +88,7 @@ rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh
 ip route add $DNS via $GATEWAY dev $INTERFACE
 ip rule add from $NETWORK table 100
 ip route add default via $GATEWAY dev $INTERFACE table 100
-ip route add 10.74.208.0/21 via $GATEWAY dev $INTERFACE
+ip route add $DEST_NETWORK via $GATEWAY dev $INTERFACE
 run_command "[adding a temporary routing rules]"
 
 sudo cat <<EOF > /etc/rc.d/rc.local
@@ -109,7 +109,7 @@ touch /var/lock/subsys/local
 ip route add $DNS via $GATEWAY dev $INTERFACE
 ip rule add from $NETWORK table 100
 ip route add default via $GATEWAY dev $INTERFACE table 100
-ip route add 10.74.208.0/21 via $GATEWAY dev $INTERFACE
+ip route add $DEST_NETWORK via $GATEWAY dev $INTERFACE
 EOF
 run_command "[adding persistent routing rules]"
 
