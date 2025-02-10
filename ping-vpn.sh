@@ -25,11 +25,20 @@ domains=(
 echo -e "Domain\t\t\tAvg RTT (ms)"
 echo "-------------------------------------"
 
+# Check the operating system
+os=$(uname)
+
 # Loop through the domain list
 for domain in "${domains[@]}"
 do
   # Use ping to test for 5 seconds and extract avg RTT value
-  avg=$(ping -c 5 "$domain" | awk -F '/' '/rtt/ {print $5}')
+  if [ "$os" = "Darwin" ]; then
+    # macOS
+    avg=$(ping -c 5 "$domain" | awk -F '=' '/round-trip/ {split($2,a,"/"); print a[2]}')
+  else
+    # Assume Linux
+    avg=$(ping -c 5 "$domain" | awk -F '/' '/rtt/ {print $5}')
+  fi
 
   # Check if a result was obtained
   if [ -n "$avg" ]; then
