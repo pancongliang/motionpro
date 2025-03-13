@@ -9,7 +9,7 @@ export METHOD=radius
 LOG_FILE="/var/log/motionpro.log"
 
 # Get VPN status
-VPN_STATUS=$(//opt/MotionPro/vpn_cmdline --status)
+VPN_STATUS=$(/opt/MotionPro/vpn_cmdline --status)
 
 # Current time
 CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
