@@ -86,7 +86,7 @@ echo
 # === Task: Install and configure MotionPro ===
 PRINT_TASK "[TASK: Install and configure MotionPro]"
 
-sudo /opt/MotionPro/install.sh -u &> /dev/null
+sudo /opt/MotionPro/install.sh -u >/dev/null 2>&1 || true
 rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh
 
 ip route add $DNS via $GATEWAY dev $INTERFACE
@@ -95,6 +95,7 @@ ip route add default via $GATEWAY dev $INTERFACE table 100
 ip route add $DEST_NETWORK via $GATEWAY dev $INTERFACE
 run_command "[adding a temporary routing rules]"
 
+sudo rm -rf /etc/rc.d/rc.local >/dev/null 2>&1 || true
 sudo cat <<EOF > /etc/rc.d/rc.local
 #!/bin/bash
 # THIS FILE IS ADDED FOR COMPATIBILITY PURPOSES
@@ -108,8 +109,9 @@ sudo cat <<EOF > /etc/rc.d/rc.local
 # Please note that you must run 'chmod +x /etc/rc.d/rc.local' to ensure
 # that this script will be executed during boot.
 
+
 touch /var/lock/subsys/local
-/usr/bin/vpnd 2>&1
+
 ip route add $DNS via $GATEWAY dev $INTERFACE
 ip rule add from $NETWORK table 100
 ip route add default via $GATEWAY dev $INTERFACE table 100
@@ -131,15 +133,15 @@ run_command "[install motionpro vpn]"
 
 
 MOTIONPRO_LOG="/var/log/motionpro.log"
-sudo rm -rf $MOTIONPRO_LOG
+sudo rm -rf $MOTIONPRO_LOG >/dev/null 2>&1 || true
 
-sudo touch $MOTIONPRO_LOG
+sudo touch $MOTIONPRO_LOG 
 run_command "[create $MOTIONPRO_LOG]"
 
 sudo chmod 777 $MOTIONPRO_LOG
 run_command "[modify $MOTIONPRO_LOG file permissions]"
 
-sudo rm -rf /opt/MotionPro/check-motionpro-status.sh
+sudo rm -rf /opt/MotionPro/check-motionpro-status.sh >/dev/null 2>&1 || true
 sudo cat <<EOF > /opt/MotionPro/check-motionpro-status.sh
 # Define log file path
 LOG_FILE="$MOTIONPRO_LOG"
@@ -175,7 +177,7 @@ run_command "[modify /opt/MotionPro/check-motionpro-status.sh permissions]"
 #sudo crontab /tmp/mycron
 sudo echo "*/3 * * * * /opt/MotionPro/check-motionpro-status.sh" | crontab -
 run_command "[Add a crontab to check the motionpro status]"
-rm -rf /tmp/mycron
+rm -rf /tmp/mycron >/dev/null 2>&1 || true
 
 sudo rm -rf /etc/systemd/system/MotionPro.service
 cat <<EOF > /etc/systemd/system/MotionPro.service
@@ -196,7 +198,7 @@ run_command "[create the motionpro.service systemd]"
 sudo systemctl daemon-reload &> /dev/null
 run_command "[systemctl daemon-reload]"
 
-sudo systemctl enable MotionPro.service &> /dev/null
+sudo systemctl enable MotionPro.service >/dev/null 2>&1 || true
 run_command "[enable motionpro.service]"
 
 # Add an empty line after the task
