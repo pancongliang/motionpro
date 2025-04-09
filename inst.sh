@@ -207,7 +207,7 @@ echo
 # === Task: Install the GNOME Desktop ===
 PRINT_TASK "[TASK: Install the GNOME Desktop]"
 
-sudo dnf groupinstall "Server with GUI" -y &> /dev/null
+sudo dnf groupinstall workstation -y &> /dev/null
 run_command "[install server with gui]"
 
 sudo systemctl set-default graphical.target &> /dev/null
