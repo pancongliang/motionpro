@@ -1,6 +1,9 @@
-
 #!/bin/bash
+# Enable strict mode for robust error handling and log failures with line number.
 set -u
+set -e
+set -o pipefail
+trap 'echo "failed: [line $LINENO: command \`$BASH_COMMAND\`]"; exit 1' ERR
 
 # VPN Information
 export USER='xxxx@xxx.com'
@@ -38,7 +41,8 @@ run_command() {
 PRINT_TASK "[TASK: Disable and stop firewalld service]"
 
 # Stop and disable firewalld services
-sudo systemctl disable --now firewalld &> /dev/null
+sudo systemctl disable --now firewalld >/dev/null 2>&1 || true
+sudo systemctl stop firewalld >/dev/null 2>&1 || true
 run_command "[firewalld service stopped and disabled]"
 
 # Add an empty line after the task
