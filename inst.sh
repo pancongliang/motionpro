@@ -207,8 +207,10 @@ echo
 # === Task: Install the GNOME Desktop ===
 PRINT_TASK "[TASK: Install the GNOME Desktop]"
 
+info: [gnome desktop installation is underway.]
+
 sudo dnf groupinstall workstation -y &> /dev/null
-run_command "[install server with gui]"
+run_command "[gnome desktop has been installed]"
 
 sudo systemctl set-default graphical.target &> /dev/null
 run_command "[sets the default system boot target to graphical mode]"
