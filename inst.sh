@@ -207,7 +207,7 @@ echo
 # === Task: Install the GNOME Desktop ===
 PRINT_TASK "[TASK: Install the GNOME Desktop]"
 
-info: [gnome desktop installation is underway...]
+echo "info: [gnome desktop installation is underway...]"
 
 sudo dnf groupinstall workstation -y &> /dev/null
 run_command "[gnome desktop has been installed]"
