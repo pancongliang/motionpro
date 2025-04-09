@@ -1,9 +1,6 @@
 #!/bin/bash
 # Enable strict mode for robust error handling and log failures with line number.
 set -u
-set -e
-set -o pipefail
-trap 'echo "failed: [line $LINENO: command \`$BASH_COMMAND\`]"; exit 1' ERR
 
 # VPN Information
 export USER='xxxx@xxx.com'
