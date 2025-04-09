@@ -38,7 +38,7 @@ run_command() {
 PRINT_TASK "[TASK: Disable and stop firewalld service]"
 
 # Stop and disable firewalld services
-sudo systemctl disable --now firewalld >/dev/null 2>&1 || true
+sudo systemctl disable firewalld >/dev/null 2>&1 || true
 sudo systemctl stop firewalld >/dev/null 2>&1 || true
 run_command "[firewalld service stopped and disabled]"
 
@@ -84,12 +84,12 @@ echo
 PRINT_TASK "[TASK: Install and configure MotionPro]"
 
 sudo /opt/MotionPro/install.sh -u >/dev/null 2>&1 || true
-rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh
+sudo rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1 || true
 
-ip route add $DNS via $GATEWAY dev $INTERFACE
-ip rule add from $NETWORK table 100
-ip route add default via $GATEWAY dev $INTERFACE table 100
-ip route add $DEST_NETWORK via $GATEWAY dev $INTERFACE
+sudo ip route add $DNS via $GATEWAY dev $INTERFACE
+sudo ip rule add from $NETWORK table 100
+sudo ip route add default via $GATEWAY dev $INTERFACE table 100
+sudo ip route add $DEST_NETWORK via $GATEWAY dev $INTERFACE
 run_command "[adding a temporary routing rules]"
 
 sudo rm -rf /etc/rc.d/rc.local >/dev/null 2>&1 || true
@@ -128,6 +128,7 @@ run_command "[modify MotionPro_Linux_RedHat_x64_build-8383-30.sh permissions]"
 sudo sh MotionPro_Linux_RedHat_x64_build-8383-30.sh &> /dev/null
 run_command "[install motionpro vpn]"
 
+sudo rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1 || true
 
 MOTIONPRO_LOG="/var/log/motionpro.log"
 sudo rm -rf $MOTIONPRO_LOG >/dev/null 2>&1 || true
@@ -203,6 +204,26 @@ echo
 # ====================================================
 
 
+# === Task: Install the GNOME Desktop ===
+PRINT_TASK "[TASK: Install the GNOME Desktop]"
+
+sudo dnf groupinstall "Server with GUI" -y &> /dev/null
+run_command "[install server with gui]"
+
+sudo systemctl set-default graphical.target &> /dev/null
+run_command "[sets the default system boot target to graphical mode]"
+
+sudo systemctl isolate graphical.target &> /dev/null
+run_command "[immediately switches the current session to graphical mode without rebooting]"
+
+sudo systemctl disable firewalld >/dev/null 2>&1 || true
+sudo systemctl stop firewalld >/dev/null 2>&1 || true
+# Add an empty line after the task
+echo
+# ====================================================
+
+
+
 # === Task: Install and configure chrome ===
 PRINT_TASK "[TASK: Install and configure chrome]"
 
@@ -217,6 +238,7 @@ run_command "[install google chrome rpm]"
 sudo sed -i 's|exec -a "$0" "$HERE/chrome" "$@"|exec -a "$0" "$HERE/chrome" "$@" --user-data-dir --test-type --no-sandbox|' /opt/google/chrome/google-chrome
 run_command "[changing to root user can also use chrome]"
 
+rm -rf google-chrome-stable_current_x86_64.rpm &> /dev/null
 # Add an empty line after the task
 echo
 # ====================================================
