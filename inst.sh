@@ -186,7 +186,7 @@ After=network-online.target
 
 [Service]
 Restart=always
-ExecStart=/opt/MotionPro/vpn_cmdline --method $METHOD -h $HOST -u '$USER' -p '$PASSWD' -c inf --loglevel warn
+ExecStart=/opt/MotionPro/vpn_cmdline --method $METHOD -h $HOST -u '$USER' -p $PASSWD -c inf --loglevel warn
 
 [Install]
 WantedBy=multi-user.target
