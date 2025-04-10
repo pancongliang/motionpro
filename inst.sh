@@ -155,7 +155,6 @@ log() {
 # Check VPN status function
 check_vpn_status() {
     VPN_STATUS=$(/opt/MotionPro/vpn_cmdline --status)
-    log "INFO" "Current VPN status: $VPN_STATUS"
     echo "$VPN_STATUS" | grep -q "connected"
     return $?
 }
@@ -173,7 +172,7 @@ if check_vpn_status; then
 else
     log "WARN" "MotionPro VPN is not connected. Retrying..."
 
-    for i in {1..3}; do
+    for i in {1..5}; do
         log "INFO" "Attempt $i to start VPN..."
         start_vpn
         sleep 3
