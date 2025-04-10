@@ -13,7 +13,7 @@ export NETWORK="10.0.78.0/23"
 export GATEWAY="10.0.79.254"
 export INTERFACE="eth0"
 export DNS="10.11.5.160"
-export DEST_NETWORK="10.72.94.0/24"  # Options: Additional networks to access, if none leave it as default
+export DEST_NETWORK="10.74.208.0/21"  # Options: Additional networks to access, if none leave it as default
 
 # Function to print a task with uniform length
 PRINT_TASK() {
