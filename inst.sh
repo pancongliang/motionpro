@@ -130,39 +130,67 @@ run_command "[install motionpro vpn]"
 
 sudo rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1 || true
 
-MOTIONPRO_LOG="/var/log/motionpro.log"
-sudo rm -rf $MOTIONPRO_LOG >/dev/null 2>&1 || true
+sudo rm -rf /var/log/motionpro.log >/dev/null 2>&1 || true
 
-sudo touch $MOTIONPRO_LOG 
-run_command "[create $MOTIONPRO_LOG]"
+sudo touch /var/log/motionpro.log
+run_command "[create /var/log/motionpro.log]"
 
-sudo chmod 777 $MOTIONPRO_LOG
-run_command "[modify $MOTIONPRO_LOG file permissions]"
+sudo chmod 777 /var/log/motionpro.log
+run_command "[modify /var/log/motionpro.log file permissions]"
 
 sudo rm -rf /opt/MotionPro/check-motionpro-status.sh >/dev/null 2>&1 || true
 sudo cat <<EOF > /opt/MotionPro/check-motionpro-status.sh
-# Define log file path
-LOG_FILE="$MOTIONPRO_LOG"
+#!/bin/bash
 
-# Get VPN status
-VPN_STATUS=\$(/opt/MotionPro/vpn_cmdline --status)
+LOG_FILE="/var/log/motionpro.log"
 
-# Current time
-CURRENT_TIME=\$(date "+%Y-%m-%d %H:%M:%S")
-a
-# Check if VPN status is "connected"
-if [[ "\$VPN_STATUS" != *"connected"* ]]; then
-    # Log: VPN not connected.
-    echo "\$CURRENT_TIME - MotionPro VPN not connected" >> \$LOG_FILE
-    
-    # Restart the VPNcontainer service
-    sudo /opt/MotionPro/vpn_cmdline --method $METHOD -h $HOST -u '$USER' -p '$PASSWD' -c inf --loglevel warn
-    
-    # Log: VPNcontainer service has been restarted
-    echo "\$CURRENT_TIME - MotionPro VPN service restarted" >> \$LOG_FILE
+# Log function
+log() {
+    local LEVEL="$1"
+    local MESSAGE="$2"
+    local CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
+    echo "$CURRENT_TIME [$LEVEL] $MESSAGE" >> "$LOG_FILE"
+}
+
+# Check VPN status function
+check_vpn_status() {
+    VPN_STATUS=$(/opt/MotionPro/vpn_cmdline --status)
+    log "INFO" "Current VPN status: $VPN_STATUS"
+    echo "$VPN_STATUS" | grep -q "connected"
+    return $?
+}
+
+# Start VPN function
+start_vpn() {
+    log "INFO" "MotionPro VPN not connected. Attempting to start..."
+    /opt/MotionPro/vpn_cmdline --method $METHOD -h $HOST \
+        -u '$USER' -p '$PASSWD' -c inf --loglevel warn
+}
+
+# Main logic
+if check_vpn_status; then
+    log "INFO" "MotionPro VPN is already connected."
 else
-    # Log: VPN is connected
-    echo "\$CURRENT_TIME - MotionPro VPN is connected" >> \$LOG_FILE
+    log "WARN" "MotionPro VPN is not connected. Retrying..."
+
+    for i in {1..3}; do
+        log "INFO" "Attempt $i to start VPN..."
+        start_vpn
+        sleep 3
+
+        if check_vpn_status; then
+            log "INFO" "VPN connected successfully on attempt $i."
+            break
+        else
+            log "WARN" "VPN connection failed on attempt $i."
+        fi
+    done
+
+    if check_vpn_status; then
+        log "INFO" "MotionPro VPN is now connected."
+    else
+        log "ERROR" "Failed to connect VPN after 3 attempts."
+    fi
 fi
 EOF
 run_command "[create the check-motionpro-status.sh script]"
