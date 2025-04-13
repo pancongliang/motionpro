@@ -188,7 +188,7 @@ else
     if check_vpn_status; then
         log "INFO" "MotionPro VPN is now connected."
     else
-        log "ERROR" "Failed to connect VPN after 3 attempts."
+        log "ERROR" "Failed to connect VPN after 5 attempts."
     fi
 fi
 EOF
