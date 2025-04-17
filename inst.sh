@@ -338,8 +338,8 @@ echo
 PRINT_TASK "[TASK: Install Windows App on MAC]"
 
 echo "info: [install windows apps from the mac app store]"
-echo "info: [enable retina when editing remotely via windows app]"
-echo "info: [when remotely connected via windows app, the resolution can be changed to the highest]"
+#echo "info: [enable retina when editing remotely via windows app]"
+#echo "info: [when remotely connected via windows app, the resolution can be changed to the highest]"
 
 # Add an empty line after the task
 echo
