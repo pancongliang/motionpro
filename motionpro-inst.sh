@@ -138,8 +138,8 @@ run_command "[create /var/log/motionpro.log]"
 sudo chmod 777 /var/log/motionpro.log
 run_command "[modify /var/log/motionpro.log file permissions]"
 
-sudo rm -rf /opt/MotionPro/check-motionpro-status.sh >/dev/null 2>&1 || true
-sudo cat <<EOF > /opt/MotionPro/check-motionpro-status.sh
+sudo rm -rf /opt/MotionPro/motionpro-auto-reconnect.sh >/dev/null 2>&1 || true
+sudo cat <<EOF > /opt/MotionPro/motionpro-auto-reconnect.sh
 #!/bin/bash
 
 LOG_FILE="/var/log/motionpro.log"
@@ -192,12 +192,12 @@ else
     fi
 fi
 EOF
-run_command "[create the check-motionpro-status.sh script]"
+run_command "[create the motionpro-auto-reconnect.sh script]"
 
-sudo chmod +x /opt/MotionPro/check-motionpro-status.sh &> /dev/null
-run_command "[modify /opt/MotionPro/check-motionpro-status.sh permissions]"
+sudo chmod +x /opt/MotionPro/motionpro-auto-reconnect.sh &> /dev/null
+run_command "[modify /opt/MotionPro/motionpro-auto-reconnect.sh permissions]"
 
-sudo echo "*/3 * * * * /opt/MotionPro/check-motionpro-status.sh" | crontab -
+sudo echo "*/3 * * * * /opt/MotionPro/motionpro-auto-reconnect.sh" | crontab -
 run_command "[Add a crontab to check the motionpro status]"
 rm -rf /tmp/mycron >/dev/null 2>&1 || true
 
