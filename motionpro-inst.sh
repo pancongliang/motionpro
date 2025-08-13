@@ -215,6 +215,11 @@ run_command "[systemctl daemon-reload]"
 sudo systemctl enable MotionPro.service >/dev/null 2>&1 || true
 run_command "[enable motionpro.service]"
 
+echo "alias vpn='bash /opt/MotionPro/motionpro-auto-reconnect.sh'" >> ~/.bashrc
+run_command "[Alias for 'vpn' command added to bashrc]"
+
+echo "info: [Run the 'vpn' command to restart or check the VPN]"
+
 # Add an empty line after the task
 echo
 # ====================================================
