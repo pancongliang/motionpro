@@ -5,7 +5,7 @@ set -euo pipefail
 # VPN Information
 export USER='xxxx@xxx.com'
 export PASSWD='xxxx'
-export HOST='vpn.wdc.softlayer.com'   # Run the ping-vpn.sh script and select a host with the lowest latency.
+export HOST='vpn.wdc.softlayer.com'   # Run the ping-vpn.sh script and select a host with the lowest latency.< wget https://raw.githubusercontent.com/pancongliang/motion-pro-vpn-client/refs/heads/main/ping-vpn.sh >
 export METHOD=radius
 
 # VPN Host Information 
