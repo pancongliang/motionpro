@@ -1,6 +1,6 @@
 #!/bin/bash
 # Enable strict mode for robust error handling and log failures with line number.
-set -u
+set -euo pipefail
 
 # VPN Information
 export USER='xxxx@xxx.com'
@@ -13,7 +13,6 @@ export NETWORK="10.0.78.0/23"
 export GATEWAY="10.0.79.254"
 export INTERFACE="eth0"
 export DNS="10.11.5.160"
-export DEST_NETWORK="10.74.208.0/21"  # Options: Additional networks to access, if none leave it as default
 
 # Function to print a task with uniform length
 PRINT_TASK() {
@@ -65,15 +64,8 @@ else
 fi
 
 # Temporarily set SELinux security policy to permissive
-sudo setenforce 0 &>/dev/null
-# Check temporary SELinux security policy
-temporary_status=$(getenforce)
-# Check if temporary SELinux security policy is permissive or disabled
-if [[ $temporary_status == "Permissive" || $temporary_status == "Disabled" ]]; then
-    echo "ok: [selinux temporary security policy is disabled]"
-else
-    echo "failed: [selinux temporary security policy is $temporary_status (expected permissive or disabled)]"
-fi
+setenforce 0 >/dev/null 2>&1 || true
+run_command "[Disable temporary SELinux enforcement]"
 
 # Add an empty line after the task
 echo
@@ -89,7 +81,6 @@ sudo rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1 || true
 sudo ip route add $DNS via $GATEWAY dev $INTERFACE
 sudo ip rule add from $NETWORK table 100
 sudo ip route add default via $GATEWAY dev $INTERFACE table 100
-sudo ip route add $DEST_NETWORK via $GATEWAY dev $INTERFACE
 run_command "[adding a temporary routing rules]"
 
 sudo rm -rf /etc/rc.d/rc.local >/dev/null 2>&1 || true
@@ -169,6 +160,7 @@ start_vpn() {
 # Main logic
 if check_vpn_status; then
     log "INFO" "MotionPro VPN is already connected."
+    echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] MotionPro VPN is already connected."
 else
     log "WARN" "MotionPro VPN is not connected. Retrying..."
 
