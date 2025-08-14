@@ -1,14 +1,24 @@
-## Motion Pro VPN Client
+### Motion Pro VPN Client
 
 
-### 1. Download the project code
+### Download the project code
 * Download motion-pro-vpn-client repository:
   
   ~~~
   git clone https://github.com/pancongliang/motion-pro-vpn-client.git
   ~~~
 
-### 2. Install required packages and Login to the registry:
+### Motion Pro installed directly in RHEL
+*  After modifying the script variables, execute the installation:
+
+   ~~~
+   vim motionpro-inst.sh
+   bash motionpro-inst.sh
+   ~~~
+
+### Installing Motion Pro via Container 
+
+#### 1. Install required packages and Login to the registry:
 
 * Install podman and wget:
   ~~~
@@ -20,7 +30,7 @@
   podman login registry.redhat.io
   ~~~
 
-### 3. Build Dockerfile
+#### 2. Build Dockerfile
 
 * Build the Docker Image:
   ~~~
@@ -28,7 +38,7 @@
   sh buildit.sh
   ~~~
 
-### 4. Setting Environment Variables
+#### 3. Setting Environment Variables
 
 * Test VPN speed:
   ~~~
@@ -44,7 +54,7 @@
   ~~~
 
 
-### 5. Start VPNcontainer Container
+#### 4. Start VPNcontainer Container
 
 * Option A: Only containers can access the VPN network:
   ~~~
@@ -53,29 +63,26 @@
 
 * Option B: Share VPN network between host and container:
   ~~~
-  export NETWORK="10.72.94.0/24"
-  export GATEWAY="10.72.94.254"
-  export INTERFACE="ens192"
-  export DNS="10.72.17.5"
+  export NETWORK_CIDR="10.0.78.0/23"
+  export GATEWAY="10.0.79.254"
+  export INTERFACE="eth0"
+  export DNS="10.11.5.160"
 
   # Temporary
-  ip rule add from $NETWORK table 100"  # In order to access the host after opening the VPN
-  ip route add default via $GATEWAY dev $INTERFACE table 100  # In order to access the host after opening the VPN
-  ip route add $DNS via 10.72.94.254 dev ens192   # In order to access own DNS after opening the VPN
+  ip route add $DNS via $GATEWAY dev $INTERFACE
+  ip rule add from $NETWORK_CIDR table 100
+  ip route add default via $GATEWAY dev $INTERFACE table 100
 
   # Persistent
-  echo "ip route add $DNS via 10.72.94.254 dev ens192" >> /etc/rc.d/rc.local
-  echo "ip rule add from $NETWORK table 100" >> /etc/rc.d/rc.local
+  echo "ip route add $DNS via $GATEWAY dev $INTERFACE" >> /etc/rc.d/rc.local
+  echo "ip rule add from $NETWORK_CIDR table 100" >> /etc/rc.d/rc.local
   echo "ip route add default via $GATEWAY dev $INTERFACE table 100" >> /etc/rc.d/rc.local
 
-  # ip route add 10.74.208.0/21 via $GATEWAY dev ens192
-  # echo "ip route add 10.74.208.0/21 via $GATEWAY dev $INTERFACE" >> /etc/rc.d/rc.local
   chmod +x /etc/rc.d/rc.local
-
   sh runit-host-net.sh 
   ~~~
 
-### 6. Automatic Start VPN Container
+#### 5. Automatic Start VPN Container
 
 * Automatically start VPN container when the machine starts:
   ~~~
@@ -93,7 +100,7 @@
   touch /var/log/motionpro.log && chmod 777 /var/log/motionpro.log
   ~~~
 
-### 7. Access the Target Environment
+#### 6. Access the Target Environment
 
 * Option A: Only containers can access the VPN network:
   ~~~
