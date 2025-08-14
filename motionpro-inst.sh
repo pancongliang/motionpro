@@ -33,21 +33,12 @@ run_command() {
         echo "failed: $1"
     fi
 }
-# === Task: Disable and stop firewalld service ===
-PRINT_TASK "[TASK: Disable and stop firewalld service]"
+
+PRINT_TASK "TASK [Disable Firewalld Service and Update SELinux Policy]"
 
 # Stop and disable firewalld services
-sudo systemctl disable firewalld >/dev/null 2>&1 || true
-sudo systemctl stop firewalld >/dev/null 2>&1 || true
-run_command "[firewalld service stopped and disabled]"
-
-# Add an empty line after the task
-echo
-# ====================================================
-
-
-# === Task: Change SELinux security policy ===
-PRINT_TASK "[TASK: Change SELinux security policy]"
+systemctl disable --now firewalld >/dev/null 2>&1
+run_command "[Stop and disable firewalld service]"
 
 # Read the SELinux configuration
 permanent_status=$(grep "^SELINUX=" /etc/selinux/config | cut -d= -f2)
@@ -56,16 +47,17 @@ if [[ $permanent_status == "enforcing" ]]; then
     # Change SELinux to permissive
     sed -i 's/^SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
     permanent_status="permissive"
-    echo "ok: [selinux permanent security policy changed to $permanent_status]"
+    echo "ok: [Set permanent selinux policy to $permanent_status]"
 elif [[ $permanent_status =~ ^[Dd]isabled$ ]] || [[ $permanent_status == "permissive" ]]; then
-    echo "ok: [selinux permanent security policy is $permanent_status]"
+    echo "ok: [Permanent selinux policy is already $permanent_status]"
+
 else
-    echo "failed: [selinux permanent security policy is $permanent_status (expected permissive or disabled)]"
+    echo "failed: [SELinux permanent policy is $permanent_status, expected permissive or disabled]"
 fi
 
 # Temporarily set SELinux security policy to permissive
 setenforce 0 >/dev/null 2>&1 || true
-run_command "[Disable temporary SELinux enforcement]"
+run_command "[Disable temporary selinux enforcement]"
 
 # Add an empty line after the task
 echo
