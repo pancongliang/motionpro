@@ -3,16 +3,17 @@
 set -euo pipefail
 
 # VPN Information
-export USER='xxxx@xxx.com'
-export PASSWD='xxxx'
+export USER='xxxxx'
+export PASSWD='xxxxx'
 export HOST='vpn.wdc.softlayer.com'   # Run the ping-vpn.sh script and select a host with the lowest latency.< wget https://raw.githubusercontent.com/pancongliang/motion-pro-vpn-client/refs/heads/main/ping-vpn.sh >
 export METHOD=radius
 
 # VPN Host Information 
-export NETWORK="10.0.78.0/23"
+export NETWORK_CIDR="10.0.78.0/23"
 export GATEWAY="10.0.79.254"
 export INTERFACE="eth0"
 export DNS="10.11.5.160"
+
 
 # Function to print a task with uniform length
 PRINT_TASK() {
@@ -37,7 +38,7 @@ run_command() {
 PRINT_TASK "TASK [Disable Firewalld Service and Update SELinux Policy]"
 
 # Stop and disable firewalld services
-systemctl disable --now firewalld >/dev/null 2>&1
+systemctl disable --now firewalld >/dev/null 2>&1 || true
 run_command "[Stop and disable firewalld service]"
 
 # Read the SELinux configuration
@@ -64,16 +65,16 @@ echo
 # ====================================================
 
 
-# === Task: Install and configure MotionPro ===
-PRINT_TASK "[TASK: Install and configure MotionPro]"
+# === Task: Install and Configure MotionPro VPN ===
+PRINT_TASK "TASK [Install and Configure MotionPro VPN]"
 
-sudo /opt/MotionPro/install.sh -u >/dev/null 2>&1 || true
+sudo nohup /opt/MotionPro/install.sh -u >/dev/null 2>&1 < /dev/null &
 sudo rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1 || true
 
-sudo ip route add $DNS via $GATEWAY dev $INTERFACE
-sudo ip rule add from $NETWORK table 100
-sudo ip route add default via $GATEWAY dev $INTERFACE table 100
-run_command "[adding a temporary routing rules]"
+sudo ip route add $DNS via $GATEWAY dev $INTERFACE >/dev/null 2>&1 || true
+sudo ip rule add from $NETWORK_CIDR table 100 >/dev/null 2>&1 || true
+sudo ip route add default via $GATEWAY dev $INTERFACE table 100 >/dev/null 2>&1 || true
+run_command "[Add temporary routing rules]"
 
 sudo rm -rf /etc/rc.d/rc.local >/dev/null 2>&1 || true
 sudo cat <<EOF > /etc/rc.d/rc.local
@@ -93,32 +94,34 @@ sudo cat <<EOF > /etc/rc.d/rc.local
 touch /var/lock/subsys/local
 
 ip route add $DNS via $GATEWAY dev $INTERFACE
-ip rule add from $NETWORK table 100
+ip rule add from $NETWORK_CIDR table 100
 ip route add default via $GATEWAY dev $INTERFACE table 100
 EOF
-run_command "[adding persistent routing rules]"
+run_command "[Add persistent routing rules]"
 
-sudo chmod +x /etc/rc.d/rc.local &> /dev/null
-run_command "[modify /etc/rc.d/rc.local permissions]"
+sudo chmod +x /etc/rc.d/rc.local >/dev/null 2>&1
+run_command "[Set permissions for /etc/rc.d/rc.local]"
+
+echo "info: [Preparing download of MotionPro VPN package]"
 
 sudo curl -OL https://support.arraynetworks.net/prx/000/http/supportportal.arraynetworks.net/downloads/pkg_9_4_5_8/MP_Linux_1.2.18/MotionPro_Linux_RedHat_x64_build-8383-30.sh &> /dev/null
-run_command "[download motionpro vpn]"
+run_command "[Download MotionPro VPN]"
 
-sudo chmod +x MotionPro_Linux_RedHat_x64_build-8383-30.sh &> /dev/null
-run_command "[modify MotionPro_Linux_RedHat_x64_build-8383-30.sh permissions]"
+sudo chmod +x MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1
+run_command "[Set permissions for MotionPro_Linux_RedHat_x64_build-8383-30.sh]"
 
-sudo sh MotionPro_Linux_RedHat_x64_build-8383-30.sh &> /dev/null
-run_command "[install motionpro vpn]"
+sudo sh MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1
+run_command "[Install MotionPro VPN]"
 
 sudo rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1 || true
 
 sudo rm -rf /var/log/motionpro.log >/dev/null 2>&1 || true
 
-sudo touch /var/log/motionpro.log
-run_command "[create /var/log/motionpro.log]"
+sudo touch /var/log/motionpro.log >/dev/null 2>&1
+run_command "[Create /var/log/motionpro.log file]"
 
-sudo chmod 777 /var/log/motionpro.log
-run_command "[modify /var/log/motionpro.log file permissions]"
+sudo chmod 777 /var/log/motionpro.log >/dev/null 2>&1
+run_command "[Set permissions for /var/log/motionpro.log]"
 
 sudo rm -rf /opt/MotionPro/motionpro-auto-reconnect.sh >/dev/null 2>&1 || true
 sudo cat <<EOF > /opt/MotionPro/motionpro-auto-reconnect.sh
@@ -128,43 +131,42 @@ LOG_FILE="/var/log/motionpro.log"
 
 # Log function
 log() {
-    local LEVEL="$1"
-    local MESSAGE="$2"
-    local CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
-    echo "$CURRENT_TIME [$LEVEL] $MESSAGE" >> "$LOG_FILE"
+    local LEVEL="\$1"
+    local MESSAGE="\$2"
+    local CURRENT_TIME=\$(date "+%Y-%m-%d %H:%M:%S")
+    echo "\$CURRENT_TIME [\$LEVEL] \$MESSAGE" >> "\$LOG_FILE"
 }
 
 # Check VPN status function
 check_vpn_status() {
-    VPN_STATUS=$(/opt/MotionPro/vpn_cmdline --status)
-    echo "$VPN_STATUS" | grep -q "connected"
-    return $?
+    VPN_STATUS=\$(/opt/MotionPro/vpn_cmdline --status)
+    echo "\$VPN_STATUS" | grep -q "connected"
+    return \$?
 }
 
 # Start VPN function
 start_vpn() {
     log "INFO" "MotionPro VPN not connected. Attempting to start..."
-    /opt/MotionPro/vpn_cmdline --method $METHOD -h $HOST \
-        -u '$USER' -p '$PASSWD' -c inf --loglevel warn
+    /opt/MotionPro/vpn_cmdline --method $METHOD -h $HOST -u '$USER' -p '$PASSWD' -c inf --loglevel warn
 }
 
 # Main logic
 if check_vpn_status; then
     log "INFO" "MotionPro VPN is already connected."
-    echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] MotionPro VPN is already connected."
+    echo "\$(date '+%Y-%m-%d %H:%M:%S') [INFO] MotionPro VPN is already connected."
 else
     log "WARN" "MotionPro VPN is not connected. Retrying..."
 
     for i in {1..5}; do
-        log "INFO" "Attempt $i to start VPN..."
+        log "INFO" "Attempt \$i to start VPN..."
         start_vpn
         sleep 3
 
         if check_vpn_status; then
-            log "INFO" "VPN connected successfully on attempt $i."
+            log "INFO" "VPN connected successfully on attempt \$i."
             break
         else
-            log "WARN" "VPN connection failed on attempt $i."
+            log "WARN" "VPN connection failed on attempt \$i."
         fi
     done
 
@@ -175,13 +177,14 @@ else
     fi
 fi
 EOF
-run_command "[create the motionpro-auto-reconnect.sh script]"
+run_command "[Create motionpro-auto-reconnect.sh script]"
 
 sudo chmod +x /opt/MotionPro/motionpro-auto-reconnect.sh &> /dev/null
-run_command "[modify /opt/MotionPro/motionpro-auto-reconnect.sh permissions]"
+run_command "[Set permissions for /opt/MotionPro/motionpro-auto-reconnect.sh]"
 
 sudo echo "*/3 * * * * /opt/MotionPro/motionpro-auto-reconnect.sh" | crontab -
-run_command "[Add a crontab to check the motionpro status]"
+run_command "[Add crontab to check MotionPro status]"
+
 rm -rf /tmp/mycron >/dev/null 2>&1 || true
 
 sudo rm -rf /etc/systemd/system/MotionPro.service
@@ -198,17 +201,18 @@ ExecStart=/opt/MotionPro/vpn_cmdline --method $METHOD -h $HOST -u '$USER' -p '$P
 [Install]
 WantedBy=multi-user.target
 EOF
-run_command "[create the motionpro.service systemd]"
+run_command "[Create motionpro service systemd]"
 
-sudo systemctl daemon-reload &> /dev/null
-run_command "[systemctl daemon-reload]"
+sudo systemctl daemon-reload >/dev/null 2>&1
+run_command "[Run systemctl daemon-reload]"
 
-sudo systemctl enable MotionPro.service >/dev/null 2>&1 || true
-run_command "[enable motionpro.service]"
+sudo systemctl enable MotionPro.service >/dev/null 2>&1
+run_command "[Enable motionpro.service]"
 
-echo "alias vpn='bash /opt/MotionPro/motionpro-auto-reconnect.sh'" >> ~/.bashrc
-run_command "[Alias for 'vpn' command added to bashrc]"
+echo "alias vpn='bash /opt/MotionPro/motionpro-auto-reconnect.sh'" >> ~/.bashrc >/dev/null 2>&1
+run_command "[Add alias for 'vpn' command to bashrc]"
 
+echo "info: [Run 'source ~/.bashrc']"
 echo "info: [Run the 'vpn' command to restart or check the VPN]"
 
 # Add an empty line after the task
