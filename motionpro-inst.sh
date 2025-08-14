@@ -103,7 +103,6 @@ touch /var/lock/subsys/local
 ip route add $DNS via $GATEWAY dev $INTERFACE
 ip rule add from $NETWORK table 100
 ip route add default via $GATEWAY dev $INTERFACE table 100
-ip route add $DEST_NETWORK via $GATEWAY dev $INTERFACE
 EOF
 run_command "[adding persistent routing rules]"
 
