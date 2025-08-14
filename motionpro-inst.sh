@@ -24,7 +24,6 @@ PRINT_TASK() {
 
     echo "$task_title$(printf '*%.0s' $(seq 1 $stars))"
 }
-# ====================================================
 
 # Function to check command success and display appropriate message
 run_command() {
@@ -38,8 +37,10 @@ run_command() {
 PRINT_TASK "TASK [Disable Firewalld Service and Update SELinux Policy]"
 
 # Stop and disable firewalld services
-systemctl disable --now firewalld >/dev/null 2>&1 || true
-run_command "[Stop and disable firewalld service]"
+if systemctl list-unit-files firewalld.service >/dev/null 2>&1; then
+    systemctl disable --now firewalld >/dev/null 2>&1
+    run_command "[Stop and disable firewalld service]"
+fi
 
 # Read the SELinux configuration
 permanent_status=$(grep "^SELINUX=" /etc/selinux/config | cut -d= -f2)
@@ -62,14 +63,17 @@ run_command "[Disable temporary selinux enforcement]"
 
 # Add an empty line after the task
 echo
-# ====================================================
-
 
 # === Task: Install and Configure MotionPro VPN ===
 PRINT_TASK "TASK [Install and Configure MotionPro VPN]"
 
-sudo nohup /opt/MotionPro/install.sh -u >/dev/null 2>&1 < /dev/null &
+if [ -f /opt/MotionPro/vpn_cmdline ]; then
+    sudo bash -c "nohup /opt/MotionPro/install.sh -u >/dev/null 2>&1 &"
+    run_command "[Delete existing MotionPro]"
+fi
+
 sudo rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1 || true
+sudo rm -rf /opt/MotionPro/ >/dev/null 2>&1 || true
 
 sudo ip route add $DNS via $GATEWAY dev $INTERFACE >/dev/null 2>&1 || true
 sudo ip rule add from $NETWORK_CIDR table 100 >/dev/null 2>&1 || true
@@ -89,7 +93,6 @@ sudo cat <<EOF > /etc/rc.d/rc.local
 #
 # Please note that you must run 'chmod +x /etc/rc.d/rc.local' to ensure
 # that this script will be executed during boot.
-
 
 touch /var/lock/subsys/local
 
@@ -209,12 +212,15 @@ run_command "[Run systemctl daemon-reload]"
 sudo systemctl enable MotionPro.service >/dev/null 2>&1
 run_command "[Enable motionpro.service]"
 
-echo "alias vpn='bash /opt/MotionPro/motionpro-auto-reconnect.sh'" >> ~/.bashrc >/dev/null 2>&1
-run_command "[Add alias for 'vpn' command to bashrc]"
+if grep -q "alias vpn=" "$HOME/.bashrc"; then
+    echo "skipped: [VPN alias already exists in $HOME/.bashrc]"
+else
+    echo "alias vpn='bash /opt/MotionPro/motionpro-auto-reconnect.sh'" >> "$HOME/.bashrc" 2>/dev/null
+    run_command "[Add alias for 'vpn' command to $HOME/.bashrc]"
+fi
 
-echo "info: [Run 'source ~/.bashrc']"
-echo "info: [Run the 'vpn' command to restart or check the VPN]"
+echo "info: [*** Run 'source ~/.bashrc' to activate the new alias ***]"
+echo "info: [*** Run the 'vpn' command to restart or check the VPN ***]"
 
 # Add an empty line after the task
 echo
-# ====================================================
