@@ -37,17 +37,17 @@ run_command() {
 PRINT_TASK "TASK [Disable Firewalld Service and Update SELinux Policy]"
 
 # Stop and disable firewalld services
-if systemctl list-unit-files firewalld.service >/dev/null 2>&1; then
-    systemctl disable --now firewalld >/dev/null 2>&1
+if sudo systemctl list-unit-files firewalld.service >/dev/null 2>&1; then
+    sudo systemctl disable --now firewalld >/dev/null 2>&1
     run_command "[Stop and disable firewalld service]"
 fi
 
 # Read the SELinux configuration
-permanent_status=$(grep "^SELINUX=" /etc/selinux/config | cut -d= -f2)
+permanent_status=$(sudo grep "^SELINUX=" /etc/selinux/config | cut -d= -f2)
 # Check if the permanent status is Enforcing
 if [[ $permanent_status == "enforcing" ]]; then
     # Change SELinux to permissive
-    sed -i 's/^SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
+    sudo sed -i 's/^SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
     permanent_status="permissive"
     echo "ok: [Set permanent selinux policy to $permanent_status]"
 elif [[ $permanent_status =~ ^[Dd]isabled$ ]] || [[ $permanent_status == "permissive" ]]; then
@@ -58,7 +58,7 @@ else
 fi
 
 # Temporarily set SELinux security policy to permissive
-setenforce 0 >/dev/null 2>&1 || true
+sudo setenforce 0 >/dev/null 2>&1 || true
 run_command "[Disable temporary selinux enforcement]"
 
 # Add an empty line after the task
