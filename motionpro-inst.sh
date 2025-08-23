@@ -221,6 +221,7 @@ fi
 
 echo "info: [*** Run 'source ~/.bashrc' to activate the new alias ***]"
 echo "info: [*** Run the 'vpn' command to restart or check the VPN ***]"
+echo "info: [*** Check VPN status every 3 minutes, auto-reconnect if disconnected ***]"
 
 # Add an empty line after the task
 echo
