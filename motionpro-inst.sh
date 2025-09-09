@@ -140,6 +140,16 @@ log() {
     echo "\$CURRENT_TIME [\$LEVEL] \$MESSAGE" >> "\$LOG_FILE"
 }
 
+# Check the vpnd daemon process
+if ! pgrep -x "vpnd" >/dev/null; then
+    log "WARN" "VPN daemon (vpnd) not running. Starting vpnd..."
+    echo "\$(date '+%Y-%m-%d %H:%M:%S') [WARN] VPN daemon (vpnd) not running. Starting..."
+    nohup /usr/bin/vpnd >/dev/null 2>&1 &
+    sleep 2
+else
+    log "INFO" "VPN daemon (vpnd) is already running."
+fi
+
 # Check VPN status function
 check_vpn_status() {
     VPN_STATUS=\$(/opt/MotionPro/vpn_cmdline --status)
