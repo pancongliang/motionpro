@@ -66,7 +66,6 @@ echo
 # === Task: Install and Configure MotionPro VPN ===
 PRINT_TASK "TASK [Install and Configure MotionPro VPN]"
 
-/usr/bin/vpnd >/dev/null 2>&1 || true
 if [ -f /opt/MotionPro/vpn_cmdline ]; then
     sudo bash -c "nohup /opt/MotionPro/install.sh -u >/dev/null 2>&1 &"
     run_command "[Delete existing MotionPro]"
