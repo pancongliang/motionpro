@@ -3,8 +3,8 @@
 set -euo pipefail
 
 # VPN Information
-export USER='xxxxx'
-export PASSWD='xxxxx'
+export USER='xxxxxx'
+export PASSWD='!xxxxxx'
 export METHOD=radius
 
 # VPN Host Information 
@@ -104,7 +104,7 @@ run_command "[Add persistent routing rules]"
 sudo chmod +x /etc/rc.d/rc.local >/dev/null 2>&1
 run_command "[Set permissions for /etc/rc.d/rc.local]"
 
-echo "info: [Preparing download of MotionPro VPN package]"
+echo "ok: [Preparing download of MotionPro VPN package]"
 
 sudo curl -OL https://support.arraynetworks.net/prx/000/http/supportportal.arraynetworks.net/downloads/pkg_9_4_5_8/MP_Linux_1.2.18/MotionPro_Linux_RedHat_x64_build-8383-30.sh &> /dev/null
 run_command "[Download MotionPro VPN]"
@@ -147,7 +147,7 @@ for host in "${hosts[@]}"; do
 
     # If the ping succeeds, update the minimum latency
     if [ -n "$latency" ]; then
-        run_command "$host latency: ${latency} ms"
+        run_command "[$host latency: ${latency} ms]"
         if (( $(echo "$latency < $min_latency" | bc -l) )); then
             min_latency=$latency
             HOST=$host
@@ -156,7 +156,7 @@ for host in "${hosts[@]}"; do
 done
 
 # Save the best node as a variable
-echo "info: [Apply the best VPN node: $HOST]"
+echo "ok: [Apply the best VPN node: $HOST]"
 
 sudo rm -rf /var/log/motionpro.log >/dev/null 2>&1 || true
 
@@ -235,6 +235,7 @@ run_command "[Create motionpro-auto-reconnect.sh script]"
 sudo chmod +x /opt/MotionPro/motionpro-auto-reconnect.sh &> /dev/null
 run_command "[Set permissions for /opt/MotionPro/motionpro-auto-reconnect.sh]"
 
+sudo echo "30 7 * * * /sbin/shutdown -r now" | crontab -
 sudo echo "*/3 * * * * /opt/MotionPro/motionpro-auto-reconnect.sh" | crontab -
 run_command "[Add crontab to check MotionPro status]"
 
@@ -263,7 +264,7 @@ sudo systemctl enable MotionPro.service >/dev/null 2>&1
 run_command "[Enable motionpro.service]"
 
 if grep -q "alias vpn=" "$HOME/.bashrc"; then
-    echo "skipped: [VPN alias already exists in $HOME/.bashrc]"
+    echo "ok: [VPN alias already exists in $HOME/.bashrc]"
 else
     echo "alias vpn='bash /opt/MotionPro/motionpro-auto-reconnect.sh'" >> "$HOME/.bashrc" 2>/dev/null
     run_command "[Add alias for 'vpn' command to $HOME/.bashrc]"
