@@ -3,9 +3,8 @@
 set -euo pipefail
 
 # VPN Information
-export USER='xxxxx'
-export PASSWD='xxxxx'
-export HOST='vpn.wdc.softlayer.com'   # Run the ping-vpn.sh script and select a host with the lowest latency.< wget https://raw.githubusercontent.com/pancongliang/motion-pro-vpn-client/refs/heads/main/ping-vpn.sh >
+export USER='xxxxxx'
+export PASSWD='!xxxxxx'
 export METHOD=radius
 
 # VPN Host Information 
@@ -105,7 +104,7 @@ run_command "[Add persistent routing rules]"
 sudo chmod +x /etc/rc.d/rc.local >/dev/null 2>&1
 run_command "[Set permissions for /etc/rc.d/rc.local]"
 
-echo "info: [Preparing download of MotionPro VPN package]"
+echo "ok: [Preparing download of MotionPro VPN package]"
 
 sudo curl -OL https://support.arraynetworks.net/prx/000/http/supportportal.arraynetworks.net/downloads/pkg_9_4_5_8/MP_Linux_1.2.18/MotionPro_Linux_RedHat_x64_build-8383-30.sh &> /dev/null
 run_command "[Download MotionPro VPN]"
@@ -117,6 +116,47 @@ sudo sh MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1
 run_command "[Install MotionPro VPN]"
 
 sudo rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1 || true
+
+# Test to find the VPN node with the lowest latency
+hosts=(
+"vpn.dal.softlayer.com"
+"vpn.mon01.softlayer.com"
+"vpn.sjc.softlayer.com"
+"vpn.tor.softlayer.com"
+"vpn.wdc.softlayer.com"
+"vpn.sao.softlayer.com"
+"vpn.ams03.softlayer.com"
+"vpn.fra.softlayer.com"
+"vpn.lon.softlayer.com"
+"vpn.mil01.softlayer.com"
+"vpn.par.softlayer.com"
+"vpn.par01.softlayer.com"
+"vpn.che01.softlayer.com"
+"vpn.osa.softlayer.com"
+"vpn.sng01.softlayer.com"
+"vpn.syd.softlayer.com"
+"vpn.tok.softlayer.com"
+)
+
+min_latency=999999
+HOST=""
+
+for host in "${hosts[@]}"; do
+    # Ping 3 times, extract average time
+    latency=$(ping -c 1 "$host" 2>/dev/null | grep 'time=' | awk -F'time=' '{print $2}' | awk '{print $1}')
+
+    # If the ping succeeds, update the minimum latency
+    if [ -n "$latency" ]; then
+        run_command "[$host latency: ${latency} ms]"
+        if (( $(echo "$latency < $min_latency" | bc -l) )); then
+            min_latency=$latency
+            HOST=$host
+        fi
+    fi
+done
+
+# Save the best node as a variable
+echo "ok: [Apply the best VPN node: $HOST]"
 
 sudo rm -rf /var/log/motionpro.log >/dev/null 2>&1 || true
 
@@ -195,6 +235,7 @@ run_command "[Create motionpro-auto-reconnect.sh script]"
 sudo chmod +x /opt/MotionPro/motionpro-auto-reconnect.sh &> /dev/null
 run_command "[Set permissions for /opt/MotionPro/motionpro-auto-reconnect.sh]"
 
+sudo echo "30 7 * * * /sbin/shutdown -r now" | crontab -
 sudo echo "*/3 * * * * /opt/MotionPro/motionpro-auto-reconnect.sh" | crontab -
 run_command "[Add crontab to check MotionPro status]"
 
@@ -223,7 +264,7 @@ sudo systemctl enable MotionPro.service >/dev/null 2>&1
 run_command "[Enable motionpro.service]"
 
 if grep -q "alias vpn=" "$HOME/.bashrc"; then
-    echo "skipped: [VPN alias already exists in $HOME/.bashrc]"
+    echo "ok: [VPN alias already exists in $HOME/.bashrc]"
 else
     echo "alias vpn='bash /opt/MotionPro/motionpro-auto-reconnect.sh'" >> "$HOME/.bashrc" 2>/dev/null
     run_command "[Add alias for 'vpn' command to $HOME/.bashrc]"
