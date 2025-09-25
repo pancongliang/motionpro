@@ -6,7 +6,7 @@ trap 'echo "failed: [Line $LINENO: Command \`$BASH_COMMAND\`]"; exit 1' ERR
 # Run the script as root user
 # VPN Information
 export USER='xxxxxx'
-export PASSWD='!xxxxxx'
+export PASSWD='xxxxxx'
 export METHOD=radius
 
 # VPN Host Information 
