@@ -1,7 +1,9 @@
 #!/bin/bash
 # Enable strict mode for robust error handling and log failures with line number.
 set -euo pipefail
+trap 'echo "failed: [Line $LINENO: Command \`$BASH_COMMAND\`]"; exit 1' ERR
 
+# Run the script as root user
 # VPN Information
 export USER='xxxxxx'
 export PASSWD='!xxxxxx'
@@ -263,14 +265,12 @@ run_command "[Run systemctl daemon-reload]"
 sudo systemctl enable MotionPro.service >/dev/null 2>&1
 run_command "[Enable motionpro.service]"
 
-if grep -q "alias vpn=" "$HOME/.bashrc"; then
-    echo "ok: [VPN alias already exists in $HOME/.bashrc]"
-else
-    echo "alias vpn='bash /opt/MotionPro/motionpro-auto-reconnect.sh'" >> "$HOME/.bashrc" 2>/dev/null
-    run_command "[Add alias for 'vpn' command to $HOME/.bashrc]"
-fi
+sudo rm -rf /etc/profile.d/aliases.sh
+cat << 'EOF' > /etc/profile.d/aliases.sh
+alias vpn='bash /opt/MotionPro/motionpro-auto-reconnect.sh'
+EOF
 
-echo "info: [*** Run 'source ~/.bashrc' to activate the new alias ***]"
+echo "info: [*** Run 'source /etc/profile.d/aliases.sh' to activate the new alias ***]"
 echo "info: [*** Run the 'vpn' command to restart or check the VPN ***]"
 echo "info: [*** Check VPN status every 3 minutes, auto-reconnect if disconnected ***]"
 
