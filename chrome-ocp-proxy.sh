@@ -1,5 +1,5 @@
 #!/bin/bash
-# Run this script on a Mac to access the OpenShift Console
+# Run this script on a Mac to access the OpenShift Console via a SOCKS5 proxy
 set -euo pipefail
 
 # Basic Configuration
