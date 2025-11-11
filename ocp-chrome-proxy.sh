@@ -24,6 +24,8 @@ CHROME_APP="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 # 2. Script workflow (normally do not modify)
 # ============================================
 
+echo "TASK [Access OpenShift Console via SOCKS5 Proxy]********************************"
+
 # Set up SSH SOCKS5 proxy
 if /usr/bin/pgrep -f "ssh -fN -D 127.0.0.1:${PROXY_PORT}" >/dev/null; then
     echo "ok [SSH proxy port 127.0.0.1:${PROXY_PORT} already running]"
