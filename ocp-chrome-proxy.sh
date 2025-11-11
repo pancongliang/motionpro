@@ -36,6 +36,15 @@ else
     fi
 fi
 
+#lsof -ti tcp:$PROXY_PORT | xargs -r kill -9 >/dev/null 2>&1 || true
+#if /usr/bin/ssh -o ConnectTimeout=10 -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP} >/dev/null 2>&1; then
+#    : #echo "ok [SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}]"
+#else
+#    echo "fail [SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}]"
+#    exit 1
+#fi
+
+
 # Create a temporary Chrome profile directory
 if TMP_PROFILE=$(mktemp -d); then
     : #echo "ok [Create temporary Chrome profile directory]"
