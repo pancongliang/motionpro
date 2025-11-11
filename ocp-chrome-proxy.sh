@@ -3,9 +3,11 @@
 set -euo pipefail
 
 # Basic Configuration
+INGRESS_DOMAIN=apps.ocp.example.com
 VPN_MACHINE_IP="10.0.79.55"
 VPN_MACHINE_USER="root"
-INGRESS_DOMAIN=apps.ocp.example.com
+
+# Normally, the 'proxy port' does not need to be changed unless it is in use
 PROXY_PORT="8899"
 
 # Usually no need to change
