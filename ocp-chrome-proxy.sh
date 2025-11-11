@@ -10,6 +10,7 @@ set -euo pipefail
 INGRESS_DOMAIN="apps.ocp.example.com"
 
 # VPN machine SSH access (ensure key-based authentication is set up)
+# [ -f ~/.ssh/id_rsa ] || ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa && ssh-copy-id $VPN_MACHINE_USER@$VPN_MACHINE_IP
 VPN_MACHINE_IP="10.0.79.55"
 VPN_MACHINE_USER="root"
 
