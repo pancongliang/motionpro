@@ -2,16 +2,27 @@
 # Run this script on a Mac to access the OpenShift Console via a SOCKS5 proxy
 set -euo pipefail
 
-# Basic Configuration
-INGRESS_DOMAIN=apps.ocp.example.com
+# ============================================
+# 1. Set environment variables
+# ============================================
+
+# Ingress domain for Chrome OCP console bookmarks
+INGRESS_DOMAIN="apps.ocp.example.com"
+
+# VPN machine SSH access (ensure key-based authentication is set up)
 VPN_MACHINE_IP="10.0.79.55"
 VPN_MACHINE_USER="root"
 
-# Normally, the 'proxy port' does not need to be changed unless it is in use
+# Proxy port for local PC and VPN machine (default: 8899; change only if conflicts occur)
 PROXY_PORT="8899"
 
-# Usually no need to change
+# Chrome executable path (default for macOS; modify if installed elsewhere)
 CHROME_APP="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+
+
+# ============================================
+# 2. Script workflow (normally do not modify)
+# ============================================
 
 # Set up SSH SOCKS5 proxy
 if /usr/bin/pgrep -f "ssh -fN -D 127.0.0.1:${PROXY_PORT}" >/dev/null; then
