@@ -242,28 +242,6 @@ run_command "[Add crontab to check MotionPro status]"
 
 rm -rf /tmp/mycron >/dev/null 2>&1 || true
 
-sudo rm -rf /etc/systemd/system/MotionPro.service
-cat <<EOF > /etc/systemd/system/MotionPro.service
-[Unit]
-Description= MotionPro
-After=network.target
-After=network-online.target
-
-[Service]
-Restart=always
-ExecStart=/opt/MotionPro/vpn_cmdline --method $METHOD -h $HOST -u '$USER' -p '$PASSWD' -c inf --loglevel warn
-
-[Install]
-WantedBy=multi-user.target
-EOF
-run_command "[Create motionpro service systemd]"
-
-sudo systemctl daemon-reload >/dev/null 2>&1
-run_command "[Run systemctl daemon-reload]"
-
-sudo systemctl enable MotionPro.service >/dev/null 2>&1
-run_command "[Enable motionpro.service]"
-
 sudo rm -rf /etc/profile.d/aliases.sh
 cat << 'EOF' > /etc/profile.d/aliases.sh
 alias vpn='bash /opt/MotionPro/motionpro-auto-reconnect.sh'
