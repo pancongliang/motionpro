@@ -237,8 +237,7 @@ run_command "[Create motionpro-auto-reconnect.sh script]"
 sudo chmod +x /opt/MotionPro/motionpro-auto-reconnect.sh &> /dev/null
 run_command "[Set permissions for /opt/MotionPro/motionpro-auto-reconnect.sh]"
 
-sudo echo "30 7 * * * /sbin/shutdown -r now" | crontab -
-sudo echo "*/3 * * * * /opt/MotionPro/motionpro-auto-reconnect.sh" | crontab -
+sudo echo "*/1 * * * * /opt/MotionPro/motionpro-auto-reconnect.sh" | crontab -
 run_command "[Add crontab to check MotionPro status]"
 
 rm -rf /tmp/mycron >/dev/null 2>&1 || true
@@ -272,7 +271,7 @@ EOF
 
 echo "info: [*** Run 'source /etc/profile.d/aliases.sh' to activate the new alias ***]"
 echo "info: [*** Run the 'vpn' command to restart or check the VPN ***]"
-echo "info: [*** Check VPN status every 3 minutes, auto-reconnect if disconnected ***]"
+echo "info: [*** Check VPN status every 1 minutes, auto-reconnect if disconnected ***]"
 
 # Add an empty line after the task
 echo
