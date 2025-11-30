@@ -37,10 +37,10 @@ else
 fi
 
 # Check if SSH SOCKS5 proxy is running on the specified port; start it if not
-#if /usr/bin/pgrep -f "ssh .* -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}" >/dev/null; then
+#if /usr/bin/pgrep -f "ssh -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}" >/dev/null; then
 #    : #echo "ok [SSH proxy port 127.0.0.1:${PROXY_PORT} already running]"
 #else
-#    if /usr/bin/ssh -o ConnectTimeout=10 -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP} >/dev/null 2>&1; then
+#    if /usr/bin/ssh -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP} >/dev/null 2>&1; then
 #        : #echo "ok [SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}]"
 #    else
 #        echo "fail [SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}]"
