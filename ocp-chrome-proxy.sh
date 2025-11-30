@@ -49,12 +49,12 @@ fi
 #fi
 
 # Register a cleanup trap to remove the profile after Chrome exits
-trap '
-if ps -p $CHROME_PID > /dev/null 2>&1; then
-    wait $CHROME_PID 2>/dev/null
-fi
-rm -rf $PROFILE_DIR > /dev/null 2>&1 || true
-' EXIT
+#trap '
+#if ps -p $CHROME_PID > /dev/null 2>&1; then
+#    wait $CHROME_PID 2>/dev/null
+#fi
+#rm -rf $PROFILE_DIR > /dev/null 2>&1 || true
+#' EXIT
 
 # Create the Default directory inside the profile
 if [ ! -d "${PROFILE_DIR}" ]; then
