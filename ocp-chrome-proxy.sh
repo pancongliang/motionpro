@@ -30,7 +30,12 @@ CHROME_APP="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 lsof -ti tcp:${PROXY_PORT} | xargs -r kill -9
 
 # Starts a background SSH SOCKS5 proxy to the remote host.
-/usr/bin/ssh -o ConnectTimeout=10 -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP} >/dev/null 2>&1
+if /usr/bin/ssh -o ConnectTimeout=10 -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP} >/dev/null 2>&1; then
+    : #echo "ok [SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}]"
+else
+    echo "fail [SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}]"
+    exit 1
+fi
 
 # Check if SSH SOCKS5 proxy is running on the specified port; start it if not
 #if /usr/bin/pgrep -f "ssh .* -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}" >/dev/null; then
@@ -43,13 +48,6 @@ lsof -ti tcp:${PROXY_PORT} | xargs -r kill -9
 #        exit 1
 #    fi
 #fi
-
-# Wait until the SOCKS5 port is open
-timeout=5
-while ! nc -z 127.0.0.1 ${PROXY_PORT} >/dev/null 2>&1 && [ $timeout -gt 0 ]; do
-    sleep 0.5
-    timeout=$((timeout-1))
-done
 
 # Register a cleanup trap to remove the profile after Chrome exits
 #trap '
