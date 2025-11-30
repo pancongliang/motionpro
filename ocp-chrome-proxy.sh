@@ -30,7 +30,7 @@ CHROME_APP="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 lsof -ti tcp:${PROXY_PORT} | xargs -r kill -9
 
 # Starts a background SSH SOCKS5 proxy to the remote host.
-if /usr/bin/ssh -o ConnectTimeout=10 -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP} >/dev/null 2>&1; then
+if /usr/bin/ssh -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP} >/dev/null 2>&1; then
     : #echo "ok [SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}]"
 else
     echo "fail [SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}]"
@@ -107,7 +107,11 @@ fi
 "$CHROME_APP" --proxy-server="socks5://127.0.0.1:${PROXY_PORT}" \
     --user-data-dir="${PROFILE_DIR}" \
     --disable-features=DarkMode,WebUIDarkMode \
-    --no-first-run --no-default-browser-check \
+    --disable-background-networking \
+    --disable-component-update \
+    --disable-sync \
+    --no-first-run \
+    --no-default-browser-check \
     > /dev/null 2>&1 &
 
 CHROME_PID=$!
