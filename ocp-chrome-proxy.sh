@@ -15,7 +15,7 @@ VPN_MACHINE_IP="10.0.79.55"
 VPN_MACHINE_USER="root"
 
 # Proxy port for local PC (change only if conflicts occur)
-PROXY_PORT="8899"
+PROXY_PORT="8888"
 
 # Chrome executable path (default for macOS; modify if installed elsewhere)
 PROFILE_DIR="$HOME/.chrome-ocp-profile"
