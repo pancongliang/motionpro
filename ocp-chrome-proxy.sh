@@ -1,6 +1,6 @@
 #!/bin/bash
 # Run this script on a Mac to access the OpenShift Console via a SOCKS5 proxy
-set -euo pipefail
+# set -euo pipefail
 
 # ============================================
 # 1. Set environment variables
@@ -20,7 +20,6 @@ PROXY_PORT="8888"
 # Chrome executable path (default for macOS; modify if installed elsewhere)
 PROFILE_DIR="$HOME/.chrome-ocp-profile"
 CHROME_APP="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-
 
 # ============================================
 # 2. Script workflow (normally do not modify)
@@ -50,12 +49,12 @@ fi
 #fi
 
 # Register a cleanup trap to remove the profile after Chrome exits
-#trap '
-#if ps -p $CHROME_PID > /dev/null 2>&1; then
-#    wait $CHROME_PID 2>/dev/null
-#fi
-#rm -rf $PROFILE_DIR > /dev/null 2>&1 || true
-#' EXIT
+trap '
+if ps -p $CHROME_PID > /dev/null 2>&1; then
+    wait $CHROME_PID 2>/dev/null
+fi
+rm -rf $PROFILE_DIR > /dev/null 2>&1 || true
+' EXIT
 
 # Create the Default directory inside the profile
 if [ ! -d "${PROFILE_DIR}" ]; then
@@ -117,7 +116,7 @@ fi
 CHROME_PID=$!
 
 # Give Chrome a moment to start
-sleep 0.5
+sleep 1
 
 # Check if Chrome started successfully
 if ps -p $CHROME_PID > /dev/null; then
