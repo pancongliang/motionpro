@@ -64,7 +64,6 @@ fi
 sudo setenforce 0 >/dev/null 2>&1 || true
 run_command "Disable temporary selinux enforcement"
 
-
 if [ -f /opt/MotionPro/vpn_cmdline ]; then
     run_command "Deleting existing MotionPro..."
     sudo bash -c "nohup /opt/MotionPro/install.sh -u >/dev/null 2>&1 </dev/null &"
@@ -249,9 +248,9 @@ cat << 'EOF' > /etc/profile.d/aliases.sh
 alias vpn='bash /opt/MotionPro/motionpro-auto-reconnect.sh'
 EOF
 
-echo -e "\e[33mACTION\e[0m To access the VPN network via web, run 'ocp-chrome-proxy.sh' on your PC."
-echo -e "\e[33mACTION\e[0m Auto check/reconnect VPN every minute; You can also manually restart using 'vpn'"
-echo -e "\e[33mACTION\e[0m Run 'source /etc/profile.d/aliases.sh' to activate the new alias"
+echo -e "\e[33mNOTE\e[0m To access the VPN network via web, run 'ocp-chrome-proxy.sh' on your PC."
+echo -e "\e[33mNOTE\e[0m Auto check/reconnect VPN every minute; You can also manually restart using 'vpn'"
+echo -e "\e[33mNOTE\e[0m Run 'source /etc/profile.d/aliases.sh' to activate the new alias"
 
 # Add an empty line after the task
 echo
