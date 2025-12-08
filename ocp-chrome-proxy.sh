@@ -9,6 +9,7 @@
 # Ingress domain for Chrome OCP console bookmarks
 INGRESS_DOMAIN="apps.ocp.example.com"
 
+# All domains to be accessed must be listed in the /etc/hosts file on the VPN_MACHINE_IP machine.
 # VPN machine SSH access (ensure key-based authentication is set up)
 # [ -f ~/.ssh/id_rsa ] || ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa && ssh-copy-id $VPN_MACHINE_USER@$VPN_MACHINE_IP
 VPN_MACHINE_IP="10.0.79.55"
@@ -30,20 +31,20 @@ CHROME_APP="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 # Starts a background SSH SOCKS5 proxy to the remote host.
 #if /usr/bin/ssh -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP} >/dev/null 2>&1; then
-#    : #echo "ok [SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}]"
+#    : #printf "\e[96mINFO\e[0m SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}\n"
 #else
-#    echo "fail [SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}]"
+#    echo -e "\e[31mFAILED\e[0m SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}\n"
 #    exit 1
 #fi
 
 # Check if SSH SOCKS5 proxy is running on the specified port; start it if not
 if /usr/bin/pgrep -f "ssh -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}" >/dev/null; then
-    : #echo "ok [SSH proxy port 127.0.0.1:${PROXY_PORT} already running]"
+    : #printf "\e[96mINFO\e[0m SSH proxy port 127.0.0.1:${PROXY_PORT} already running\n"
 else
     if /usr/bin/ssh -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP} >/dev/null 2>&1; then
-        : #echo "ok [SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}]"
+        : #printf "\e[96mINFO\e[0m SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}\n"
     else
-        echo "fail [SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}]"
+        printf "\e[31mFAILED\e[0m SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}\n"
         exit 1
     fi
 fi
@@ -59,9 +60,9 @@ fi
 # Create the Default directory inside the profile
 if [ ! -d "${PROFILE_DIR}" ]; then
     if mkdir -p "${PROFILE_DIR}/Default" 2>/dev/null; then
-        : #echo "ok [Chrome profile directory created: ${PROFILE_DIR}]"
+        : #printf "\e[96mINFO\e[0m Chrome profile directory created: ${PROFILE_DIR}\n"
     else
-        echo "fail [Chrome profile directory created: ${PROFILE_DIR}]"
+        printf "\e[31mFAILED\e[0m Chrome profile directory created: ${PROFILE_DIR}\n"
         exit 1
     fi
 fi
@@ -96,9 +97,9 @@ if cat > "${PROFILE_DIR}/Default/Bookmarks" <<EOF
 }
 EOF
 then
-    : #echo "ok [Create a Chrome bookmarks file in the profile]"
+    : #printf "\e[96mINFO\e[0m Create a Chrome bookmarks file in the profile\n"
 else
-    echo "fail [Create a Chrome bookmarks file in the profile]"
+    printf "\e[31mFAILED\e[0m Create a Chrome bookmarks file in the profile\n"
     exit 1
 fi
 
@@ -119,10 +120,11 @@ CHROME_PID=$!
 sleep 1
 
 # Check if Chrome started successfully
-if ps -p $CHROME_PID > /dev/null; then
-    echo "ok [Establishing SOCKS5 proxy to internal network]"
+if ps -p "$CHROME_PID" > /dev/null; then
+    #printf "\e[96mINFO\e[0m Add required domains to /etc/hosts on $VPN_MACHINE_IP\n"
+    printf "\e[96mINFO\e[0m Establishing SOCKS5 proxy to internal network\n"
 else
-    echo "fail [Establishing SOCKS5 proxy to internal network]"
+    printf "\e[31mFAILED\e[0m Establishing SOCKS5 proxy to internal network\n"
     exit 1
 fi
 
