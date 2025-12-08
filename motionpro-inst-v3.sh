@@ -1,7 +1,7 @@
 #!/bin/bash
 # Enable strict mode for robust error handling and log failures with line number.
 set -euo pipefail
-trap 'echo "failed: [Line $LINENO: Command \`$BASH_COMMAND\`]"; exit 1' ERR
+trap 'echo -e "\e[31mFAILED\e[0m Line $LINENO - Command: $BASH_COMMAND"; exit 1' ERR
 
 # Run the script as root user
 # VPN Information
@@ -30,19 +30,19 @@ PRINT_TASK() {
 run_command() {
     local exit_code=$?
     if [ $exit_code -eq 0 ]; then
-        echo "ok: $1"
+        echo -e "\e[96mINFO\e[0m $1"
     else
-        echo "failed: $1"
+        echo -e "\e[31mFAILED\e[0m $1"
         exit 1
     fi
 }
 
-PRINT_TASK "TASK [Disable Firewalld Service and Update SELinux Policy]"
+PRINT_TASK "TASK [Install and Configure MotionPro VPN]"
 
 # Stop and disable firewalld services
 if sudo systemctl list-unit-files firewalld.service >/dev/null 2>&1; then
     sudo systemctl disable --now firewalld >/dev/null 2>&1
-    run_command "[Stop and disable firewalld service]"
+    run_command "Stop and disable firewalld service"
 fi
 
 # Read the SELinux configuration
@@ -52,27 +52,22 @@ if [[ $permanent_status == "enforcing" ]]; then
     # Change SELinux to permissive
     sudo sed -i 's/^SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
     permanent_status="permissive"
-    echo "ok: [Set permanent selinux policy to $permanent_status]"
+    echo -e "\e[96mINFO\e[0m Set permanent selinux policy to $permanent_status"
 elif [[ $permanent_status =~ ^[Dd]isabled$ ]] || [[ $permanent_status == "permissive" ]]; then
-    echo "ok: [Permanent selinux policy is already $permanent_status]"
+    echo -e "\e[96mINFO\e[0m Permanent selinux policy is already $permanent_status"
 
 else
-    echo "failed: [SELinux permanent policy is $permanent_status, expected permissive or disabled]"
+    echo -e "\e[31mFAILED\e[0m SELinux permanent policy is $permanent_status, expected permissive or disabled"
 fi
 
 # Temporarily set SELinux security policy to permissive
 sudo setenforce 0 >/dev/null 2>&1 || true
-run_command "[Disable temporary selinux enforcement]"
+run_command "Disable temporary selinux enforcement"
 
-# Add an empty line after the task
-echo
-
-# === Task: Install and Configure MotionPro VPN ===
-PRINT_TASK "TASK [Install and Configure MotionPro VPN]"
 
 if [ -f /opt/MotionPro/vpn_cmdline ]; then
-    sudo bash -c "nohup /opt/MotionPro/install.sh -u >/dev/null 2>&1 &"
-    run_command "[Delete existing MotionPro]"
+    run_command "Deleting existing MotionPro..."
+    sudo bash -c "nohup /opt/MotionPro/install.sh -u >/dev/null 2>&1 </dev/null &"
 fi
 
 sudo rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1 || true
@@ -81,7 +76,7 @@ sudo rm -rf /opt/MotionPro/ >/dev/null 2>&1 || true
 sudo ip route add $DNS via $GATEWAY dev $INTERFACE >/dev/null 2>&1 || true
 sudo ip rule add from $NETWORK_CIDR table 100 >/dev/null 2>&1 || true
 sudo ip route add default via $GATEWAY dev $INTERFACE table 100 >/dev/null 2>&1 || true
-run_command "[Add temporary routing rules]"
+run_command "Add temporary routing rules"
 
 sudo rm -rf /etc/rc.d/rc.local >/dev/null 2>&1 || true
 sudo cat <<EOF > /etc/rc.d/rc.local
@@ -103,25 +98,29 @@ ip route add $DNS via $GATEWAY dev $INTERFACE
 ip rule add from $NETWORK_CIDR table 100
 ip route add default via $GATEWAY dev $INTERFACE table 100
 EOF
-run_command "[Add persistent routing rules]"
+run_command "Add persistent routing rules"
 
 sudo chmod +x /etc/rc.d/rc.local >/dev/null 2>&1
-run_command "[Set permissions for /etc/rc.d/rc.local]"
+run_command "Set permissions for /etc/rc.d/rc.local"
 
-echo "ok: [Preparing download of MotionPro VPN package]"
+echo -e "\e[96mINFO\e[0m Downloading MotionPro software package"
 
 sudo curl -OL https://support.arraynetworks.net/prx/000/http/supportportal.arraynetworks.net/downloads/pkg_9_4_5_8/MP_Linux_1.2.18/MotionPro_Linux_RedHat_x64_build-8383-30.sh &> /dev/null
-run_command "[Download MotionPro VPN]"
+run_command "Download MotionPro software package"
 
 sudo chmod +x MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1
-run_command "[Set permissions for MotionPro_Linux_RedHat_x64_build-8383-30.sh]"
+run_command "Set permissions for MotionPro_Linux_RedHat_x64_build-8383-30.sh"
+
+echo -e "\e[96mINFO\e[0m Installing MotionPro VPN"
 
 sudo sh MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1
-run_command "[Install MotionPro VPN]"
+run_command "Installation complete"
 
 sudo rm -rf MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1 || true
 
-# Test to find the VPN node with the lowest latency
+echo -e "\e[96mINFO\e[0m Finding the VPN host with the lowest latency"
+
+# Test to find the VPN site with the lowest latency
 hosts=(
 "vpn.dal.softlayer.com"
 "vpn.mon01.softlayer.com"
@@ -150,8 +149,10 @@ for host in "${hosts[@]}"; do
     latency=$(ping -c 1 "$host" 2>/dev/null | grep 'time=' | awk -F'time=' '{print $2}' | awk '{print $1}')
 
     # If the ping succeeds, update the minimum latency
-    if [ -n "$latency" ]; then
-        run_command "[$host latency: ${latency} ms]"
+    # if [ -n "$latency" ]; then
+    #   run_command "HOST: $host latency: ${latency} ms"
+      if [ -z "$latency" ]; then
+        echo -e "\e[31mFAILED\e[0m Host $host is unreachable"  
         if (( $(echo "$latency < $min_latency" | bc -l) )); then
             min_latency=$latency
             HOST=$host
@@ -160,15 +161,14 @@ for host in "${hosts[@]}"; do
 done
 
 # Save the best node as a variable
-echo "ok: [Apply the best VPN node: $HOST]"
+echo -e "\e[96mINFO\e[0m Apply the best VPN host: $HOST"
 
 sudo rm -rf /var/log/motionpro.log >/dev/null 2>&1 || true
-
 sudo touch /var/log/motionpro.log >/dev/null 2>&1
-run_command "[Create /var/log/motionpro.log file]"
+run_command "Create /var/log/motionpro.log file"
 
 sudo chmod 777 /var/log/motionpro.log >/dev/null 2>&1
-run_command "[Set permissions for /var/log/motionpro.log]"
+run_command "Set permissions for /var/log/motionpro.log"
 
 sudo rm -rf /opt/MotionPro/motionpro-auto-reconnect.sh >/dev/null 2>&1 || true
 sudo cat <<EOF > /opt/MotionPro/motionpro-auto-reconnect.sh
@@ -234,13 +234,13 @@ else
     fi
 fi
 EOF
-run_command "[Create motionpro-auto-reconnect.sh script]"
+run_command "Create motionpro-auto-reconnect.sh script"
 
 sudo chmod +x /opt/MotionPro/motionpro-auto-reconnect.sh &> /dev/null
-run_command "[Set permissions for /opt/MotionPro/motionpro-auto-reconnect.sh]"
+run_command "Set permissions for /opt/MotionPro/motionpro-auto-reconnect.sh"
 
 sudo echo "*/1 * * * * /opt/MotionPro/motionpro-auto-reconnect.sh" | crontab -
-run_command "[Add crontab to check MotionPro status]"
+run_command "Add crontab to check MotionPro status"
 
 rm -rf /tmp/mycron >/dev/null 2>&1 || true
 
@@ -249,9 +249,9 @@ cat << 'EOF' > /etc/profile.d/aliases.sh
 alias vpn='bash /opt/MotionPro/motionpro-auto-reconnect.sh'
 EOF
 
-echo "info: [*** Run 'source /etc/profile.d/aliases.sh' to activate the new alias ***]"
-echo "info: [*** Run the 'vpn' command to restart or check the VPN ***]"
-echo "info: [*** Check VPN status every 1 minutes, auto-reconnect if disconnected ***]"
+echo -e "\e[96mINFO\e[0m Check VPN status every 1 minutes, auto-reconnect if disconnected"
+echo -e "\e[33mACTION\e[0m Run the 'vpn' command to restart or check the VPN"
+echo -e "\e[33mACTION\e[0m Run 'source /etc/profile.d/aliases.sh' to activate the new alias"
 
 # Add an empty line after the task
 echo
