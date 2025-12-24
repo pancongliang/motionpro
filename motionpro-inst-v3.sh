@@ -144,16 +144,15 @@ min_latency=999999
 HOST=""
 
 for host in "${hosts[@]}"; do
-    # Ping 3 times, extract average time
-    latency=$(ping -c 1 "$host" 2>/dev/null | grep 'time=' | awk -F'time=' '{print $2}' | awk '{print $1}')
-
-    # If the ping succeeds, update the minimum latency
-    # if [ -n "$latency" ]; then
-    #   run_command "HOST: $host latency: ${latency} ms"
-      if [ -z "$latency" ]; then
-        echo -e "\e[31mFAILED\e[0m Host $host is unreachable"  
-        if (( $(echo "$latency < $min_latency" | bc -l) )); then
-            min_latency=$latency
+    # Get avg latency (3 pings, 2s timeout)
+    latency_raw=$(ping -c 3 -W 2 "$host" 2>/dev/null | tail -1 | awk -F '/' '{print $5}')
+    
+    if [ -n "$latency_raw" ]; then
+        # Compare as integers (strip dots)
+        latency_int=$(echo "$latency_raw" | tr -d '.')
+        
+        if [ "$latency_int" -lt "$min_latency" ]; then
+            min_latency=$latency_int
             HOST=$host
         fi
     fi
@@ -249,8 +248,9 @@ alias vpn='bash /opt/MotionPro/motionpro-auto-reconnect.sh'
 EOF
 
 echo -e "\e[33mNOTE\e[0m To access the VPN network via web, run 'ocp-chrome-proxy.sh' on your PC."
-echo -e "\e[33mNOTE\e[0m Auto check/reconnect VPN every minute; You can also manually restart using 'vpn'"
 echo -e "\e[33mNOTE\e[0m Run 'source /etc/profile.d/aliases.sh' to activate the new alias"
+echo -e "\e[33mNOTE\e[0m Auto check/reconnect VPN every minute; Can also manually restart using 'vpn'"
+
 
 # Add an empty line after the task
 echo
