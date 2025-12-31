@@ -26,17 +26,6 @@ CHROME_APP="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 # 2. Script workflow (normally do not modify)
 # ============================================
 
-# Kill any process using the proxy port
-#lsof -ti tcp:${PROXY_PORT} | xargs -r kill -9
-
-# Starts a background SSH SOCKS5 proxy to the remote host.
-#if /usr/bin/ssh -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP} >/dev/null 2>&1; then
-#    : #printf "\e[96mINFO\e[0m SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}\n"
-#else
-#    echo -e "\e[31mFAILED\e[0m SSH proxy started on 127.0.0.1:${PROXY_PORT} forwarding to ${VPN_MACHINE_IP}\n"
-#    exit 1
-#fi
-
 # Check if SSH SOCKS5 proxy is running on the specified port; start it if not
 if /usr/bin/pgrep -f "ssh -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}" >/dev/null; then
     : #printf "\e[96mINFO\e[0m SSH proxy port 127.0.0.1:${PROXY_PORT} already running\n"
@@ -48,14 +37,6 @@ else
         exit 1
     fi
 fi
-
-# Register a cleanup trap to remove the profile after Chrome exits
-#trap '
-#if ps -p $CHROME_PID > /dev/null 2>&1; then
-#    wait $CHROME_PID 2>/dev/null
-#fi
-#rm -rf $PROFILE_DIR > /dev/null 2>&1 || true
-#' EXIT
 
 # Create the Default directory inside the profile
 if [ ! -d "${PROFILE_DIR}" ]; then
