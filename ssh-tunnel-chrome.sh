@@ -4,7 +4,6 @@
 # --------------------------------------------
 # 1. Set environment variables
 # --------------------------------------------
-
 INGRESS_DOMAIN="apps.yaoli.example.com"
 VPN_MACHINE_IP="10.0.79.55"
 VPN_MACHINE_USER="root"
@@ -26,10 +25,10 @@ SSH_SOCKS_CMD=(ssh -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACH
 # 3. ssh-copy-id -o ProxyJump=root@${VPN_MACHINE_IP} root@${TARGET_MACHINE_IP}
 # 4. All domains to be accessed must be listed in the /etc/hosts file on the TARGET_MACHINE_IP machine.
 # --------------------------------------------
-TARGET_MACHINE_IP="10.184.134.153"
+TARGET_MACHINE_IP="10.184.134.77"
 TARGET_MACHINE_USER="root"
 
-SSH_SOCKS_CMD=(
+#SSH_SOCKS_CMD=(
   ssh -4 -N -D ${PROXY_PORT}
   -o StrictHostKeyChecking=no
   -o ServerAliveInterval=15
@@ -92,18 +91,22 @@ maintain_ssh() {
 maintain_ssh true
 
 # Start SSH maintenance in background
-maintain_ssh false &
+maintain_ssh false & 
 MAINTAINER_PID=$!
+
+# To prevent the terminal from displaying "Terminated: 15"
+disown $MAINTAINER_PID 2>/dev/null
 
 # Cleanup on exit: kill SSH tunnel and maintenance process
 trap '
+    exec 2>/dev/null
     printf "\r\033[K"
     if [ -n "$MAINTAINER_PID" ]; then
         kill $MAINTAINER_PID 2>/dev/null
     fi
     # Kill the actual SSH process matching our port
     pgrep -f "$MATCH_PATTERN" | xargs kill -9 2>/dev/null
-    printf "\e[96mINFO\e[0m Proxy SSH processes stopped and exiting\n"
+    # printf "\e[96mINFO\e[0m Proxy SSH processes stopped and exiting\n"
     exit
 ' EXIT
 
