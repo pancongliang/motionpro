@@ -20,7 +20,7 @@ PROXY_PORT="9999"
 # - TARGET_MACHINE_IP host must have access to both 10.184.134.0/24 and 10.48.55.0/24               
 # - ssh-copy-id ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}
 # - ssh-copy-id -o ProxyJump=${VPN_MACHINE_USER}@${VPN_MACHINE_IP} ${TARGET_MACHINE_USER}@${TARGET_MACHINE_IP}
-# - Domain name resolution relies on /etc/hosts entries on the TARGET_MACHINE_IP
+# - Domain name resolution relies on the /etc/hosts entries or DNS on the TARGET_MACHINE_IP
 # --------------------------------------------
 #TARGET_MACHINE_IP="10.184.134.30"
 #TARGET_MACHINE_USER="root"
