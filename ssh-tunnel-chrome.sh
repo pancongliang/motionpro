@@ -43,7 +43,7 @@ SSH_COMMON_OPTS=(
 # Core Logic: Determine connection mode based on TARGET_MACHINE_IP
 if [ -n "$TARGET_MACHINE_IP" ]; then
     # Triggered if TARGET_MACHINE_IP is defined; routes through VPN_MACHINE
-    printf "\e[96mINFO\e[0m Jump Host via ${VPN_MACHINE_IP} to ${TARGET_MACHINE_IP}\n"
+    # printf "\e[96mINFO\e[0m Jump Host via ${VPN_MACHINE_IP} to ${TARGET_MACHINE_IP}\n"
     
     SSH_SOCKS_CMD=(
         ssh -4 "${SSH_COMMON_OPTS[@]}"
@@ -54,7 +54,7 @@ if [ -n "$TARGET_MACHINE_IP" ]; then
     CURRENT_TARGET="$TARGET_MACHINE_IP"
 else
     # Triggered if TARGET_MACHINE_IP is empty; connects directly to VPN_MACHINE
-    printf "\e[96mINFO\e[0m Direct Connection to ${VPN_MACHINE_IP}\n"
+    # printf "\e[96mINFO\e[0m Direct Connection to ${VPN_MACHINE_IP}\n"
     SSH_SOCKS_CMD=(
         ssh "${SSH_COMMON_OPTS[@]}"
         "${VPN_MACHINE_USER}@${VPN_MACHINE_IP}"
