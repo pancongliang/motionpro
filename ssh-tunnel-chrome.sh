@@ -4,46 +4,66 @@
 # --------------------------------------------
 # 1. Set environment variables
 # --------------------------------------------
-INGRESS_DOMAIN="apps.yaoli.example.com"
+# Prerequisite: 
+# Access 10.184.134.0/24 via VPN machine
+# - ssh-copy-id ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}
+# - Domain name resolution relies on /etc/hosts entries on the VPN machine
+# --------------------------------------------
+INGRESS_DOMAIN="apps.ocp.example.com"
 VPN_MACHINE_IP="10.0.79.55"
 VPN_MACHINE_USER="root"
 PROXY_PORT="9999"
 
 # --------------------------------------------
-# Option A: Access 10.184.134.0/24 via VPN machine
+# Option:  Access 10.48.55.0/24 via VPN machine and TARGET_MACHINE_IP
 # Prerequisite: 
-# 1. ssh-copy-id ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}
-# 2. All domains to be accessed must be listed in the /etc/hosts file on the VPN_MACHINE_IP machine.
+# - TARGET_MACHINE_IP host must have access to both 10.184.134.0/24 and 10.48.55.0/24               
+# - ssh-copy-id ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}             
+# - ssh-copy-id -o ProxyJump=root@${VPN_MACHINE_IP} root@${TARGET_MACHINE_IP}
+# - Domain name resolution relies on /etc/hosts entries on the TARGET_MACHINE_IP
 # --------------------------------------------
-SSH_SOCKS_CMD=(ssh -fN -D 127.0.0.1:${PROXY_PORT} ${VPN_MACHINE_USER}@${VPN_MACHINE_IP})
+#TARGET_MACHINE_IP="10.184.134.77"
+#TARGET_MACHINE_USER="root"
 
 # --------------------------------------------
-# Option B:  Access 10.48.55.0/24 via VPN machine and TARGET_MACHINE_IP (jump host)
-# Prerequisite: 
-# 1. TARGET_MACHINE_IP host must have access to both 10.184.134.0/24 and 10.48.55.0/24               
-# 2. ssh-copy-id ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}             
-# 3. ssh-copy-id -o ProxyJump=root@${VPN_MACHINE_IP} root@${TARGET_MACHINE_IP}
-# 4. All domains to be accessed must be listed in the /etc/hosts file on the TARGET_MACHINE_IP machine.
+# 2. SSH tunnel maintenance function Ensures SOCKS5 proxy stays active (normally do not modify)
 # --------------------------------------------
-TARGET_MACHINE_IP="10.184.134.77"
-TARGET_MACHINE_USER="root"
 
-#SSH_SOCKS_CMD=(
-  ssh -4 -N -D ${PROXY_PORT}
-  -o StrictHostKeyChecking=no
-  -o ServerAliveInterval=15
-  -o ServerAliveCountMax=3
-  -o ExitOnForwardFailure=yes
-  -o TCPKeepAlive=yes
-  -J ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}
-  ${TARGET_MACHINE_USER}@${TARGET_MACHINE_IP}
+# Define common SSH options for stability and persistence
+SSH_COMMON_OPTS=(
+    -N 
+    -D "127.0.0.1:${PROXY_PORT}" 
+    -o ServerAliveInterval=15 
+    -o ServerAliveCountMax=3 
+    -o ExitOnForwardFailure=yes 
+    -o TCPKeepAlive=yes
+    -o StrictHostKeyChecking=no
 )
 
-# --------------------------------------------
-# 3. SSH tunnel maintenance function Ensures SOCKS5 proxy stays active (normally do not modify)
-# --------------------------------------------
+# Core Logic: Determine connection mode based on TARGET_MACHINE_IP
+if [ -n "$TARGET_MACHINE_IP" ]; then
+    # Triggered if TARGET_MACHINE_IP is defined; routes through VPN_MACHINE
+    printf "\e[96mINFO\e[0m Jump Host via ${VPN_MACHINE_IP} to ${TARGET_MACHINE_IP}\n"
+    
+    SSH_SOCKS_CMD=(
+        ssh -4 "${SSH_COMMON_OPTS[@]}"
+        -J "${VPN_MACHINE_USER}@${VPN_MACHINE_IP}"
+        "${TARGET_MACHINE_USER}@${TARGET_MACHINE_IP}"
+    )
+    # Target for process matching
+    CURRENT_TARGET="$TARGET_MACHINE_IP"
+else
+    # Triggered if TARGET_MACHINE_IP is empty; connects directly to VPN_MACHINE
+    printf "\e[96mINFO\e[0m Direct Connection to ${VPN_MACHINE_IP}\n"
+    SSH_SOCKS_CMD=(
+        ssh "${SSH_COMMON_OPTS[@]}"
+        "${VPN_MACHINE_USER}@${VPN_MACHINE_IP}"
+    )
+    # Target for process matching
+    CURRENT_TARGET="$VPN_MACHINE_IP"
+fi
 
-# Pattern used to detect running SSH process for cleanup/maintenance
+# Generate command string and pattern for maintenance and monitoring
 CMD_STR="${SSH_SOCKS_CMD[*]}"
 MATCH_PATTERN="ssh.*-D.*${PROXY_PORT}.*${TARGET_MACHINE_IP:-$VPN_MACHINE_IP}"
 MAX_SSH_RETRIES=5
@@ -111,7 +131,7 @@ trap '
 ' EXIT
 
 # --------------------------------------------
-# 4. Chrome profile and bookmarks
+# 3. Chrome profile and bookmarks
 # --------------------------------------------
 
 # Create bookmarks for vSphere and OpenShift console
@@ -167,8 +187,11 @@ else
 fi
 
 # --------------------------------------------
-# 5. Launch Chrome with SOCKS5 proxy
+# 4. Launch Chrome with SOCKS5 proxy
 # --------------------------------------------
+
+# Close existing Chrome instances using the same profile
+pkill -f "Google Chrome.*--user-data-dir=${PROFILE_DIR}" 2>/dev/null
 
 # Launch Chrome with the profile and SOCKS5 proxy
 "$CHROME_APP" --proxy-server="socks5://127.0.0.1:${PROXY_PORT}" \
