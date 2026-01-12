@@ -165,7 +165,7 @@ if cat > "${PROFILE_DIR}/Default/Bookmarks" <<EOF
         },
         {
           "type": "url",
-          "name": "OpenShift Console",
+          "name": "OCP Console",
           "url": "https://console-openshift-console.${INGRESS_DOMAIN}/dashboards",
           "date_added": "17625390150000000"
         }
