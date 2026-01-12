@@ -18,8 +18,8 @@ PROXY_PORT="9999"
 # Option:  Access 10.48.55.0/24 via VPN machine and TARGET_MACHINE_IP
 # Prerequisite: 
 # - TARGET_MACHINE_IP host must have access to both 10.184.134.0/24 and 10.48.55.0/24               
-# - ssh-copy-id ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}             
-# - ssh-copy-id -o ProxyJump=root@${VPN_MACHINE_IP} root@${TARGET_MACHINE_IP}
+# - ssh-copy-id ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}
+# - ssh-copy-id -o ProxyJump=${VPN_MACHINE_USER}@${VPN_MACHINE_IP} ${TARGET_MACHINE_USER}@${TARGET_MACHINE_IP}
 # - Domain name resolution relies on /etc/hosts entries on the TARGET_MACHINE_IP
 # --------------------------------------------
 #TARGET_MACHINE_IP="10.184.134.77"
@@ -46,7 +46,7 @@ if [ -n "$TARGET_MACHINE_IP" ]; then
     # printf "\e[96mINFO\e[0m Jump Host via ${VPN_MACHINE_IP} to ${TARGET_MACHINE_IP}\n"
     
     SSH_SOCKS_CMD=(
-        ssh -4 "${SSH_COMMON_OPTS[@]}"
+        ssh -C -4 "${SSH_COMMON_OPTS[@]}"
         -J "${VPN_MACHINE_USER}@${VPN_MACHINE_IP}"
         "${TARGET_MACHINE_USER}@${TARGET_MACHINE_IP}"
     )
@@ -56,7 +56,7 @@ else
     # Triggered if TARGET_MACHINE_IP is empty; connects directly to VPN_MACHINE
     # printf "\e[96mINFO\e[0m Direct Connection to ${VPN_MACHINE_IP}\n"
     SSH_SOCKS_CMD=(
-        ssh "${SSH_COMMON_OPTS[@]}"
+        ssh -C -4 "${SSH_COMMON_OPTS[@]}"
         "${VPN_MACHINE_USER}@${VPN_MACHINE_IP}"
     )
     # Target for process matching
