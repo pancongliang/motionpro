@@ -9,7 +9,7 @@
 # - ssh-copy-id ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}
 # - Domain name resolution relies on /etc/hosts entries on the VPN machine
 # --------------------------------------------
-INGRESS_DOMAIN="apps.ocp.example.com"
+INGRESS_DOMAIN="apps.copan.ocp.test"
 VPN_MACHINE_IP="10.0.79.55"
 VPN_MACHINE_USER="root"
 PROXY_PORT="9999"
