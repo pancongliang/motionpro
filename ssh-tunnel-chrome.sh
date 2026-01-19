@@ -1,6 +1,7 @@
 #!/bin/bash
 # set -euo pipefail
-# Run on macOS: launch Chrome with a SOCKS5 proxy to access the OpenShift Console
+# Run on macOS: Launch Chrome through a SOCKS5 proxy to access the internal network
+
 # --------------------------------------------
 # 1. Set environment variables
 # --------------------------------------------
@@ -15,7 +16,7 @@ VPN_MACHINE_USER="root"
 PROXY_PORT="9999"
 
 # --------------------------------------------
-# Option:  Access 10.48.55.0/24 via VPN machine and TARGET_MACHINE_IP
+# Optional:  Access 10.48.55.0/24 via VPN machine and TARGET_MACHINE_IP
 # Prerequisite: 
 # - TARGET_MACHINE_IP host must have access to both 10.184.134.0/24 and 10.48.55.0/24               
 # - ssh-copy-id ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}
