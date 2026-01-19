@@ -10,7 +10,7 @@
 # - Domain name resolution relies on /etc/hosts entries on the VPN machine
 # --------------------------------------------
 INGRESS_DOMAIN="apps.copan.ocp.test"
-VPN_MACHINE_IP="10.0.79.55"
+VPN_MACHINE_IP="10.0.79.55"     # 10.72.94.215
 VPN_MACHINE_USER="root"
 PROXY_PORT="9999"
 
