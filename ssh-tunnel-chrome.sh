@@ -4,8 +4,8 @@
 # --------------------------------------------
 # 1. Set environment variables
 # --------------------------------------------
+# Mandatory:  Access 10.184.134.0/24 via VPN machine
 # Prerequisite: 
-# Access 10.184.134.0/24 via VPN machine
 # - ssh-copy-id ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}
 # - Domain name resolution relies on /etc/hosts entries on the VPN machine
 # --------------------------------------------
