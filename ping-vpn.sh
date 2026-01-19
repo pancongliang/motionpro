@@ -22,7 +22,7 @@ domains=(
 )
 
 # Print the header
-echo -e "Domain\t\t\tAvg RTT (ms)"
+printf "Domain\t\t\tAvg RTT (ms)\n"
 echo "-------------------------------------"
 
 # Check the operating system
@@ -33,10 +33,10 @@ for domain in "${domains[@]}"
 do
   # Use ping to test for 5 seconds and extract avg RTT value
   if [ "$os" = "Darwin" ]; then
-    # macOS
+    # Mac OS
     avg=$(ping -c 5 "$domain" | awk -F '=' '/round-trip/ {split($2,a,"/"); print a[2]}')
   else
-    # Assume Linux
+    # RHEL
     avg=$(ping -c 5 "$domain" | awk -F '/' '/rtt/ {print $5}')
   fi
 
