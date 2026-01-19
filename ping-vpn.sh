@@ -42,8 +42,8 @@ do
 
   # Check if a result was obtained
   if [ -n "$avg" ]; then
-    echo -e "$domain\t$avg ms"
+    printf "%s\t%s ms\n" "$domain" "$avg"
   else
-    echo -e "$domain\tPing failed"
+    printf "%s\tPing failed\n" "$domain"
   fi
 done
