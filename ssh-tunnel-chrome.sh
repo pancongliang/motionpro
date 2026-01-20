@@ -23,8 +23,8 @@ PROXY_PORT="9999"
 # - ssh-copy-id -o ProxyJump=${VPN_MACHINE_USER}@${VPN_MACHINE_IP} ${TARGET_MACHINE_USER}@${TARGET_MACHINE_IP}
 # - Domain name resolution relies on the /etc/hosts entries or DNS on the TARGET_MACHINE_IP
 # --------------------------------------------
-#TARGET_MACHINE_IP="10.184.134.30"
-#TARGET_MACHINE_USER="root"
+TARGET_MACHINE_IP="10.184.134.30"
+TARGET_MACHINE_USER="root"
 
 # --------------------------------------------
 # 2. SSH tunnel maintenance function Ensures SOCKS5 proxy stays active (normally do not modify)
