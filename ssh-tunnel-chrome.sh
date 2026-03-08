@@ -10,7 +10,7 @@
 # - ssh-copy-id ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}
 # - Domain name resolution relies on /etc/hosts entries on the VPN machine
 # --------------------------------------------
-INGRESS_DOMAIN="apps.copan.ocp.test"
+INGRESS_DOMAIN="apps.ocp.example.com"
 VPN_MACHINE_IP="10.0.79.55"     # 10.72.94.215
 VPN_MACHINE_USER="root"
 PROXY_PORT="9999"
@@ -46,9 +46,7 @@ if [ -n "$TARGET_MACHINE_IP" ]; then
     # Triggered if TARGET_MACHINE_IP is defined; routes through VPN_MACHINE
     # printf "\e[96mINFO\e[0m Jump Host via ${VPN_MACHINE_IP} to ${TARGET_MACHINE_IP}\n"    
     SSH_SOCKS_CMD=(
-        ssh -C -4 "${SSH_COMMON_OPTS[@]}"
-        -J "${VPN_MACHINE_USER}@${VPN_MACHINE_IP}"
-        "${TARGET_MACHINE_USER}@${TARGET_MACHINE_IP}"
+        ssh -C -4 "${SSH_COMMON_OPTS[@]}" -J "${VPN_MACHINE_USER}@${VPN_MACHINE_IP}" "${TARGET_MACHINE_USER}@${TARGET_MACHINE_IP}"
     )
     # Target for process matching
     CURRENT_TARGET="$TARGET_MACHINE_IP"
@@ -56,8 +54,7 @@ else
     # Triggered if TARGET_MACHINE_IP is empty; connects directly to VPN_MACHINE
     # printf "\e[96mINFO\e[0m Direct Connection to ${VPN_MACHINE_IP}\n"
     SSH_SOCKS_CMD=(
-        ssh -C -4 "${SSH_COMMON_OPTS[@]}"
-        "${VPN_MACHINE_USER}@${VPN_MACHINE_IP}"
+        ssh -C -4 "${SSH_COMMON_OPTS[@]}" "${VPN_MACHINE_USER}@${VPN_MACHINE_IP}"
     )
     # Target for process matching
     CURRENT_TARGET="$VPN_MACHINE_IP"
@@ -66,7 +63,7 @@ fi
 # Generate command string and pattern for maintenance and monitoring
 CMD_STR="${SSH_SOCKS_CMD[*]}"
 MATCH_PATTERN="ssh.*-D.*${PROXY_PORT}.*${TARGET_MACHINE_IP:-$VPN_MACHINE_IP}"
-MAX_SSH_RETRIES=5
+MAX_SSH_RETRIES=200
 
 # SSH tunnel maintenance function Ensures SOCKS5 proxy stays active
 maintain_ssh() {
@@ -80,11 +77,12 @@ maintain_ssh() {
             local count=0
             local success=false
             while [ $count -lt $MAX_SSH_RETRIES ]; do
-                sleep 1
+                #sleep 1
                 if pgrep -f "$MATCH_PATTERN" >/dev/null && lsof -i tcp:${PROXY_PORT} >/dev/null 2>&1; then
                     success=true
                     break
                 fi
+                sleep 0.1
                 ((count++))
             done
             
@@ -117,6 +115,11 @@ MAINTAINER_PID=$!
 # To prevent the terminal from displaying "Terminated: 15"
 disown $MAINTAINER_PID 2>/dev/null
 
+trap '
+    [ -n "$MAINTAINER_PID" ] && pkill -P $MAINTAINER_PID 2>/dev/null
+    [ -n "$MAINTAINER_PID" ] && kill $MAINTAINER_PID 2>/dev/null
+' EXIT
+
 # Cleanup on exit: kill SSH tunnel and maintenance process
 trap '
     exec 2>/dev/null
@@ -125,7 +128,8 @@ trap '
         kill $MAINTAINER_PID 2>/dev/null
     fi
     # Kill the actual SSH process matching our port
-    pgrep -f "$MATCH_PATTERN" | xargs kill -9 2>/dev/null
+    # pgrep -f "$MATCH_PATTERN" | xargs kill -9 2>/dev/null
+    pgrep -f "ssh -C -4 -N -D 127.0.0.1:${PROXY_PORT}" | xargs kill -9 2>/dev/null
     # printf "\e[96mINFO\e[0m Proxy SSH processes stopped and exiting\n"
     exit
 ' EXIT
