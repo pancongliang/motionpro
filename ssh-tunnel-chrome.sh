@@ -181,13 +181,7 @@ if cat > "${PROFILE_DIR}/Default/Bookmarks" <<EOF
         },
         {
           "type": "url",
-          "name": "OCP-UPI",
-          "url": "https://console-openshift-console.apps.ocp.example.com/dashboards",
-          "date_added": "17625390150000000"
-        },
-        {
-          "type": "url",
-          "name": "OCP-vSphere",
+          "name": "OCP Console",
           "url": "https://console-openshift-console.${INGRESS_DOMAIN}/dashboards",
           "date_added": "17625390150000000"
         }
