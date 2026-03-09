@@ -32,7 +32,7 @@ TARGET_MACHINE_USER="root"
 
 # Define common SSH options for stability and persistence
 SSH_COMMON_OPTS=(
-    -N 
+    -C -fN 
     -D "127.0.0.1:${PROXY_PORT}" 
     -o ServerAliveInterval=15 
     -o ServerAliveCountMax=3 
