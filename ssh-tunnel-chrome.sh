@@ -10,7 +10,7 @@
 # - ssh-copy-id ${VPN_MACHINE_USER}@${VPN_MACHINE_IP}
 # - Domain name resolution relies on /etc/hosts entries on the VPN machine
 # --------------------------------------------
-INGRESS_DOMAIN="apps.ocp.example.com"
+INGRESS_DOMAIN="apps.copan.ocp.test"
 VPN_MACHINE_IP="10.0.79.55"     # 10.72.94.215
 VPN_MACHINE_USER="root"
 PROXY_PORT="9999"
@@ -115,11 +115,6 @@ MAINTAINER_PID=$!
 # To prevent the terminal from displaying "Terminated: 15"
 disown $MAINTAINER_PID 2>/dev/null
 
-trap '
-    [ -n "$MAINTAINER_PID" ] && pkill -P $MAINTAINER_PID 2>/dev/null
-    [ -n "$MAINTAINER_PID" ] && kill $MAINTAINER_PID 2>/dev/null
-' EXIT
-
 # Cleanup on exit: kill SSH tunnel and maintenance process
 trap '
     exec 2>/dev/null
@@ -129,7 +124,7 @@ trap '
     fi
     # Kill the actual SSH process matching our port
     # pgrep -f "$MATCH_PATTERN" | xargs kill -9 2>/dev/null
-    pgrep -f "ssh -C -4 -N -D 127.0.0.1:${PROXY_PORT}" | xargs kill -9 2>/dev/null
+    pgrep -f "ssh .* -D 127.0.0.1:${PROXY_PORT}" | xargs kill -9 2>/dev/null
     # printf "\e[96mINFO\e[0m Proxy SSH processes stopped and exiting\n"
     exit
 ' EXIT
