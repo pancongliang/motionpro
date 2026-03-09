@@ -46,7 +46,7 @@ if [ -n "$TARGET_MACHINE_IP" ]; then
     # Triggered if TARGET_MACHINE_IP is defined; routes through VPN_MACHINE
     # printf "\e[96mINFO\e[0m Jump Host via ${VPN_MACHINE_IP} to ${TARGET_MACHINE_IP}\n"    
     SSH_SOCKS_CMD=(
-        ssh -C -4 "${SSH_COMMON_OPTS[@]}" -J "${VPN_MACHINE_USER}@${VPN_MACHINE_IP}" "${TARGET_MACHINE_USER}@${TARGET_MACHINE_IP}"
+        ssh "${SSH_COMMON_OPTS[@]}" -J "${VPN_MACHINE_USER}@${VPN_MACHINE_IP}" "${TARGET_MACHINE_USER}@${TARGET_MACHINE_IP}"
     )
     # Target for process matching
     CURRENT_TARGET="$TARGET_MACHINE_IP"
@@ -54,7 +54,7 @@ else
     # Triggered if TARGET_MACHINE_IP is empty; connects directly to VPN_MACHINE
     # printf "\e[96mINFO\e[0m Direct Connection to ${VPN_MACHINE_IP}\n"
     SSH_SOCKS_CMD=(
-        ssh -C -4 "${SSH_COMMON_OPTS[@]}" "${VPN_MACHINE_USER}@${VPN_MACHINE_IP}"
+        ssh "${SSH_COMMON_OPTS[@]}" "${VPN_MACHINE_USER}@${VPN_MACHINE_IP}"
     )
     # Target for process matching
     CURRENT_TARGET="$VPN_MACHINE_IP"
