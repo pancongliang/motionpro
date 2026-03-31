@@ -145,7 +145,7 @@ HOST=""
 
 for host in "${hosts[@]}"; do
     # Get avg latency (3 pings, 2s timeout)
-    latency_raw=$(ping -c 3 -W 2 "$host" 2>/dev/null | tail -1 | awk -F '/' '{print $5}')
+    latency_raw=$(ping -c 3 -W 2 "$host" 2>/dev/null | tail -1 | awk -F '/' '{print $5}') || true
     
     if [ -n "$latency_raw" ]; then
         # Compare as integers (strip dots)
