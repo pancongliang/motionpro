@@ -321,6 +321,7 @@ echo
 
 
 PRINT_TASK "[TASK: Post-installation Configuration]"
+
 echo -e "\e[33mNOTE\e[0m Reboot the machine to apply any changes"
 echo -e "\e[33mNOTE\e[0m Install Windows Applications for Remote Desktop from the Mac App Store"
 echo -e "\e[33mNOTE\e[0m To access the VPN network via web, run 'ssh-tunnel-chrome.sh' on your PC"
