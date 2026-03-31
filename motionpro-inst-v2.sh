@@ -1,7 +1,7 @@
 #!/bin/bash
 # Enable strict mode for robust error handling and log failures with line number.
 set -euo pipefail
-trap 'echo -e "\e[31mFAILED\e[0m Line $LINENO - Command: $BASH_COMMAND"; exit 1' ERR
+trap 'echo -e "\e[31mFAIL\e[0m Line $LINENO - Command: $BASH_COMMAND"; exit 1' ERR
 
 # Run the script as root user
 # VPN Information
@@ -250,24 +250,29 @@ EOF
 # Add an empty line after the task
 echo
 
-PRINT_TASK "[TASK: Install the GNOME Desktop]"
 
-echo -e "\e[33mNOTE\e[0m Gnome desktop installation is underway..."
+#PRINT_TASK "[TASK: Install the GNOME Desktop]"
 
-sudo dnf groupinstall workstation -y &> /dev/null
-run_command "Gnome desktop has been installed"
+#echo -e "\e[33mNOTE\e[0m Gnome desktop installation is underway..."
 
-sudo systemctl set-default graphical.target &> /dev/null
-run_command "Sets the default system boot target to graphical mode"
+#sudo dnf groupinstall workstation -y &> /dev/null
+#run_command "Gnome desktop has been installed"
 
-sudo systemctl isolate graphical.target &> /dev/null
-run_command "Immediately switches the current session to graphical mode without rebooting"
+#sudo dnf update mesa* -y &> /dev/null
+#run_command "Update Mesa-related packages"
 
-sudo systemctl disable firewalld >/dev/null 2>&1 || true
-sudo systemctl stop firewalld >/dev/null 2>&1 || true
+#sudo systemctl set-default graphical.target &> /dev/null
+#run_command "Sets the default system boot target to graphical mode"
+
+#sudo systemctl isolate graphical.target &> /dev/null
+#run_command "Immediately switches the current session to graphical mode without rebooting"
+
+#sudo systemctl disable firewalld >/dev/null 2>&1 || true
+#sudo systemctl stop firewalld >/dev/null 2>&1 || true
 
 # Add an empty line after the task
-echo
+#echo
+
 
 PRINT_TASK "[TASK: Install and configure chrome]"
 
@@ -286,6 +291,7 @@ rm -rf google-chrome-stable_current_x86_64.rpm &> /dev/null
 
 # Add an empty line after the task
 echo
+
 
 PRINT_TASK "[TASK: Install and configure RDP]"
 
@@ -313,8 +319,12 @@ run_command "Restart xrdp.service"
 # Add an empty line after the task
 echo
 
+
 PRINT_TASK "[TASK: Post-installation Configuration]"
 echo -e "\e[33mNOTE\e[0m Reboot the machine to apply any changes"
 echo -e "\e[33mNOTE\e[0m Install Windows Applications for Remote Desktop from the Mac App Store"
 echo -e "\e[33mNOTE\e[0m To access the VPN network via web, run 'ssh-tunnel-chrome.sh' on your PC"
 echo -e "\e[33mNOTE\e[0m Auto check/reconnect VPN every minute; Can also manually restart using 'vpn'"
+
+# Add an empty line after the task
+echo
