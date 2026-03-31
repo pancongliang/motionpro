@@ -5,8 +5,8 @@ trap 'echo -e "\e[31mFAILED\e[0m Line $LINENO - Command: $BASH_COMMAND"; exit 1'
 
 # Run the script as root user
 # VPN Information
-export USER='xxxxxx'
-export PASSWD='xxxxxx'
+export USER='xxx'
+export PASSWD='xxx'
 export METHOD=radius
 
 # VPN Host Information 
@@ -104,7 +104,7 @@ run_command "Set permissions for /etc/rc.d/rc.local"
 
 echo -e "\e[96mINFO\e[0m Downloading MotionPro software package"
 
-sudo curl -OL https://support.arraynetworks.net/prx/000/http/supportportal.arraynetworks.net/downloads/pkg_9_4_5_8/MP_Linux_1.2.18/MotionPro_Linux_RedHat_x64_build-8383-30.sh &> /dev/null
+sudo curl -k -OL https://support.arraynetworks.net/prx/000/http/supportportal.arraynetworks.net/downloads/pkg_9_4_5_8/MP_Linux_1.2.18/MotionPro_Linux_RedHat_x64_build-8383-30.sh &> /dev/null
 run_command "Download MotionPro software package"
 
 sudo chmod +x MotionPro_Linux_RedHat_x64_build-8383-30.sh >/dev/null 2>&1
@@ -145,7 +145,7 @@ HOST=""
 
 for host in "${hosts[@]}"; do
     # Get avg latency (3 pings, 2s timeout)
-    latency_raw=$(ping -c 3 -W 2 "$host" 2>/dev/null | tail -1 | awk -F '/' '{print $5}')
+    latency_raw=$(ping -c 3 -W 2 "$host" 2>/dev/null | tail -1 | awk -F '/' '{print $5}') || true
     
     if [ -n "$latency_raw" ]; then
         # Compare as integers (strip dots)
@@ -252,7 +252,7 @@ echo
 
 PRINT_TASK "[TASK: Install the GNOME Desktop]"
 
-echo "info: Gnome desktop installation is underway..."
+echo -e "\e[33mNOTE\e[0m Gnome desktop installation is underway..."
 
 sudo dnf groupinstall workstation -y &> /dev/null
 run_command "Gnome desktop has been installed"
@@ -290,7 +290,7 @@ echo
 PRINT_TASK "[TASK: Install and configure RDP]"
 
 sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm &> /dev/null
-run_command "Modify install epel-release-latest-9.noarch"
+run_command "Install epel-release-latest-9.noarch"
 
 sudo dnf install xrdp tigervnc-server -y &> /dev/null
 run_command "Install xrdp and tigervnc-server rpm"
