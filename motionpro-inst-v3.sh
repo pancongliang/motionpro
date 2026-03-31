@@ -247,10 +247,9 @@ cat << 'EOF' > /etc/profile.d/aliases.sh
 alias vpn='bash /opt/MotionPro/motionpro-auto-reconnect.sh'
 EOF
 
-echo -e "\e[33mNOTE\e[0m To access the VPN network via web, run 'ocp-chrome-proxy.sh' on your PC."
+echo -e "\e[33mNOTE\e[0m To access the VPN network via web, run 'ssh-tunnel-chrome.sh' on your PC"
 echo -e "\e[33mNOTE\e[0m Run 'source /etc/profile.d/aliases.sh' to activate the new alias"
 echo -e "\e[33mNOTE\e[0m Auto check/reconnect VPN every minute; Can also manually restart using 'vpn'"
-
 
 # Add an empty line after the task
 echo
